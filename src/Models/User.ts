@@ -1,0 +1,164 @@
+import { DataTypes } from "sequelize";
+import Loader from "../Loaders";
+import Token from "./Token";
+import {
+	Model,
+	HasManyGetAssociationsMixin,
+	HasManyRemoveAssociationsMixin,
+	HasManyCreateAssociationMixin,
+} from "sequelize";
+import bcrypt from "bcrypt";
+
+import { ACCESS_TOKEN, REFRESH_TOKEN, Role } from "../Constants";
+import jwt from "jsonwebtoken";
+import { Password, TokenUtil } from "../Utils";
+class User extends Model {
+	declare createToken: HasManyCreateAssociationMixin<Token>;
+	declare getTokens: HasManyGetAssociationsMixin<Token>;
+	declare removeTokens: HasManyRemoveAssociationsMixin<Token, number>;
+
+	declare id: number;
+	declare firstname: string;
+	declare lastname: string;
+	declare email: string;
+	declare hashedPassword: string;
+	declare role: string;
+	declare phone: string;
+	declare gender: boolean;
+	declare birthday: Date;
+	declare avatar: Blob
+	declare remainingDays: number ;;
+
+	public static associate() {
+		User.hasMany(Token, {
+			foreignKey: "userId",
+		});
+	}
+	public async checkPassword(password: string) {
+		console.log("Comparing password.....", password, this.hashedPassword);
+		const result = await bcrypt.compare(password, this.hashedPassword);
+		console.log(result ? "Password Ok!" : "Incorrect password");
+		return result;
+	}
+
+	public generateAccessToken() {
+		const user = this;
+
+		if (!ACCESS_TOKEN.secret) {
+			throw Error("Can't found serket key!");
+		}
+		const accessToken = jwt.sign(
+			{
+				id: user.id.toString(),
+				fullName: `${user.firstname} ${user.lastname}`,
+				email: user.email,
+				role: user.role,
+			},
+			ACCESS_TOKEN.secret,
+			{
+				expiresIn: ACCESS_TOKEN.expiry,
+			}
+		);
+
+		return accessToken;
+	}
+
+	public async generateRefreshToken() {
+		const user = this;
+
+		if (!REFRESH_TOKEN.secret) {
+			throw Error("Can't found serket key!");
+		}
+		const refreshToken = jwt.sign(
+			{
+				id: user.id.toString(),
+			},
+			REFRESH_TOKEN.secret,
+			{
+				expiresIn: REFRESH_TOKEN.expiry,
+			}
+		);
+
+		const rTknHash = TokenUtil.hash(refreshToken, REFRESH_TOKEN.secret);
+
+		await user.createToken({ value: rTknHash });
+		await user.save();
+
+		return refreshToken;
+	}
+	
+}
+
+User.init(
+	{
+		username: {
+			type: DataTypes.STRING,
+			allowNull: false,
+			unique: true,
+		},
+		email: {
+			type: DataTypes.STRING,
+			allowNull: false,
+		},
+		phone: {
+			type: DataTypes.STRING,
+		},
+		firstname: {
+			type: DataTypes.STRING,
+			allowNull: false,
+		},
+		lastname: {
+			type: DataTypes.STRING,
+			allowNull: false,
+		},
+		gender: {
+			type: DataTypes.BOOLEAN,
+		},
+		birthday: {
+			type: DataTypes.DATE,
+		},
+		avatar: {
+			type: DataTypes.BLOB,
+		},
+		remainingDays: {
+			type: DataTypes.INTEGER,
+			allowNull: false
+		},
+		role: {
+			type: DataTypes.STRING,
+			allowNull: false,
+			defaultValue: Role.EMPLOYEE,
+		},
+		hashedPassword: {
+			type: DataTypes.STRING,
+			allowNull: false,
+		},
+		isActive: {
+			type: DataTypes.BOOLEAN,
+			allowNull: false,
+			defaultValue: true,
+		},
+	},
+	{
+		defaultScope: {
+			where: {
+				isActive: true
+			}
+		},
+		scopes: {
+			sendToClient: {
+				attributes: ["id", "username", "email", "firstname", "lastname", "phone","phone", "avatar", "remainingDays"]
+			}
+		},
+		sequelize: Loader.sequelize,
+	}
+);
+
+User.addHook("beforeCreate", async (instance) => {
+	instance.setDataValue(
+		"hashedPassword",
+		await Password.hash(instance.getDataValue("hashedPassword"))
+	);
+});
+
+export default User;
