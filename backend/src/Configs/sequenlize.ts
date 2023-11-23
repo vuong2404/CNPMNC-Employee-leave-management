@@ -22,7 +22,7 @@ class SeqObject {
                     underscored: false
                 },
                 dialectOptions: {
-                    ssl: true,
+                    ssl: process.env.NODE_ENV === "production" ,
                   },
             });
         }
