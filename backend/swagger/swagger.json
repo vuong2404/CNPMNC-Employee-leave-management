@@ -11,8 +11,12 @@
 	},
 	"servers": [
 		{
+			"url": "https://elms-fb1g.onrender.com/api",
+			"description": "Render Host"
+		},
+		{
 			"url": "http://localhost:3003/api",
-			"description": "Local Dev"
+			"description": "Localhost"
 		}
 	],
 	"tags": [
@@ -21,60 +25,20 @@
 			"description": "API for authentication"
 		},
 		{
-			"name": "Order",
-			"description": "API for order in the system"
+			"name": "User",
+			"description": "API for User in the system"
 		},
 		{
-			"name": "Customer",
-			"description": "API for customer in the system"
+			"name": "Leave Request",
+			"description": "API for Leave Reques in the system"
 		}
 	],
 	"paths": {
-		"/users/signup": {
+		"/auth/login": {
 			"post": {
-				"tags": ["Authentication"],
-				"summary": "Sign up new account with email, password, firstname, lastname",
-				"requestBody": {
-					"description": "Object of fisrtname, lastname, username and password",
-					"required": "True",
-					"content": {
-						"application/json": {
-							"schema": {
-								"$ref": "#/components/schemas/SignUp"
-							},
-							"example": {
-								"firstname": "minh",
-								"lastname": "vuong",
-								"email": "test@gmail.com",
-								"password": "password"
-							}
-						}
-					}
-				},
-				"responses": {
-					"200": {
-						"success": true,
-						"accessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjMwIiwiZnVsbE5hbWUiOiJtaW5oIHZ1b25nIiwiZW1haWwiOiJuc3MxQGdtYWlsLmNvbSIsImlhdCI6MTY5OTg5MjMxMSwiZXhwIjoxNjk5ODkyMzQxfQ.ZTEazQbXpWb8hvRfgPlpke_NDI5VfofZ10_MVygYPOQ",
-						"user": {
-							"id": 30,
-							"email": "test@gmail.com",
-							"firstname": "minh",
-							"lastname": "vuong",
-							"avatar": null,
-							"language": "vi",
-							"createdAt": "2023-11-13T12:05:46.451Z",
-							"updatedAt": "2023-11-13T12:05:46.451Z"
-						}
-					},
-					"400": {
-						"description": "Login faild failed"
-					}
-				}
-			}
-		},
-		"/users/signin": {
-			"post": {
-				"tags": ["Authentication"],
+				"tags": [
+					"Authentication"
+				],
 				"summary": "Login with email and password",
 				"requestBody": {
 					"description": "Object of username and password",
@@ -85,8 +49,8 @@
 								"$ref": "#/components/schemas/Login"
 							},
 							"example": {
-								"email": "test@gmail.com",
-								"password": "password"
+								"username": "employee1",
+								"password": "employee"
 							}
 						}
 					}
@@ -96,14 +60,7 @@
 						"success": true,
 						"accessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjMwIiwiZnVsbE5hbWUiOiJtaW5oIHZ1b25nIiwiZW1haWwiOiJuc3MxQGdtYWlsLmNvbSIsImlhdCI6MTY5OTg5MjMxMSwiZXhwIjoxNjk5ODkyMzQxfQ.ZTEazQbXpWb8hvRfgPlpke_NDI5VfofZ10_MVygYPOQ",
 						"user": {
-							"id": 30,
-							"email": "test@gmail.com",
-							"firstname": "minh",
-							"lastname": "vuong",
-							"avatar": null,
-							"language": "vi",
-							"createdAt": "2023-11-13T12:05:46.451Z",
-							"updatedAt": "2023-11-13T12:05:46.451Z"
+							"id": 30
 						}
 					},
 					"400": {
@@ -112,188 +69,548 @@
 				}
 			}
 		},
-        "/users/admin/signin": {
-			"post": {
-				"tags": ["Authentication"],
-				"summary": "Admin Login with username and password",
-				"requestBody": {
-					"description": "Object of username and password",
-					"required": "True",
-					"content": {
-						"application/json": {
-							"schema": {
-								"$ref": "#/components/schemas/Login"
-							},
-							"example": {
-								"username": "manager",
-								"password": "manager"
-							}
-						}
-					}
-				},
-				"responses": {
-					"200": {
-						"success": true,
-						"accessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjMwIiwiZnVsbE5hbWUiOiJtaW5oIHZ1b25nIiwiZW1haWwiOiJuc3MxQGdtYWlsLmNvbSIsImlhdCI6MTY5OTg5MjMxMSwiZXhwIjoxNjk5ODkyMzQxfQ.ZTEazQbXpWb8hvRfgPlpke_NDI5VfofZ10_MVygYPOQ",
-						"user": {
-							"id": 30,
-							"firstname": "manager",
-							"lastname": "manager",
-							"avatar": null,
-							"language": "vi",
-							"createdAt": "2023-11-13T12:05:46.451Z",
-							"updatedAt": "2023-11-13T12:05:46.451Z"
-						}
-					},
-					"400": {
-						"description": "Login faild failed"
-					}
-				}
-			}
-		},
-        "/users/logout": {
+		"/auth/logout": {
 			"delete": {
-				"tags": ["Authentication"],
+				"security": [
+					{
+						"JWT": []
+					}
+				],
+				"tags": [
+					"Authentication"
+				],
 				"summary": "Log out account",
 				"responses": {
-					"200": {
-						"success": true,
-						"accessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjMwIiwiZnVsbE5hbWUiOiJtaW5oIHZ1b25nIiwiZW1haWwiOiJuc3MxQGdtYWlsLmNvbSIsImlhdCI6MTY5OTg5MjMxMSwiZXhwIjoxNjk5ODkyMzQxfQ.ZTEazQbXpWb8hvRfgPlpke_NDI5VfofZ10_MVygYPOQ",
-						"user": {
-							"id": 30,
-							"email": "test@gmail.com",
-							"firstname": "minh",
-							"lastname": "vuong",
-							"avatar": null,
-							"language": "vi",
-							"createdAt": "2023-11-13T12:05:46.451Z",
-							"updatedAt": "2023-11-13T12:05:46.451Z"
-						}
-					},
-					"400": {
-						"description": "Login faild failed"
+					"205": {},
+					"401": {
+						"description": "Authentication faild"
 					}
 				}
 			}
 		},
-
-        "/users/logout/all": {
+		"/auth/logout/all": {
 			"delete": {
-				"tags": ["Authentication"],
+				"security": [
+					{
+						"JWT": []
+					}
+				],
+				"tags": [
+					"Authentication"
+				],
 				"summary": "Log out account from all devices",
 				"responses": {
-					"200": {
-						"success": true,
-						"accessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjMwIiwiZnVsbE5hbWUiOiJtaW5oIHZ1b25nIiwiZW1haWwiOiJuc3MxQGdtYWlsLmNvbSIsImlhdCI6MTY5OTg5MjMxMSwiZXhwIjoxNjk5ODkyMzQxfQ.ZTEazQbXpWb8hvRfgPlpke_NDI5VfofZ10_MVygYPOQ",
-						"user": {
-							"id": 30,
-							"email": "test@gmail.com",
-							"firstname": "minh",
-							"lastname": "vuong",
-							"avatar": null,
-							"language": "vi",
-							"createdAt": "2023-11-13T12:05:46.451Z",
-							"updatedAt": "2023-11-13T12:05:46.451Z"
-						}
-					},
-					"400": {
-						"description": "Login faild failed"
+					"205": {},
+					"401": {
+						"description": "Authentication faild"
 					}
 				}
 			}
 		},
-        "/users/refresh": {
+		"/auth/refresh": {
 			"post": {
-				"tags": ["Authentication"],
+				"security": [
+					{
+						"JWT": []
+					}
+				],
+				"tags": [
+					"Authentication"
+				],
 				"summary": "Refresh access tokens",
 				"responses": {
 					"200": {
-						"success": true,
-						"accessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjMwIiwiZnVsbE5hbWUiOiJtaW5oIHZ1b25nIiwiZW1haWwiOiJuc3MxQGdtYWlsLmNvbSIsImlhdCI6MTY5OTg5MjMxMSwiZXhwIjoxNjk5ODkyMzQxfQ.ZTEazQbXpWb8hvRfgPlpke_NDI5VfofZ10_MVygYPOQ",
-						"user": {
-							"id": 30,
-							"email": "test@gmail.com",
-							"firstname": "minh",
-							"lastname": "vuong",
-							"avatar": null,
-							"language": "vi",
-							"createdAt": "2023-11-13T12:05:46.451Z",
-							"updatedAt": "2023-11-13T12:05:46.451Z"
-						}
+						"accessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjMwIiwiZnVsbE5hbWUiOiJtaW5oIHZ1b25nIiwiZW1haWwiOiJuc3MxQGdtYWlsLmNvbSIsImlhdCI6MTY5OTg5MjMxMSwiZXhwIjoxNjk5ODkyMzQxfQ.ZTEazQbXpWb8hvRfgPlpke_NDI5VfofZ10_MVygYPOQ"
 					},
-					"400": {
-						"description": "Login faild failed"
+					"401": {
+						"description": "Authentication faild"
 					}
 				}
 			}
 		},
-
-		"/customer/all": {
+		"/users/info": {
 			"get": {
-				"tags": ["Customer"],
-				"summary": "Returns a list of all customers",
+				"security": [
+					{
+						"JWT": []
+					}
+				],
+				"tags": [
+					"User"
+				],
+				"summary": "Get user info after login",
 				"responses": {
 					"200": {
-						"description": "A JSON array of customers",
-						"content": {
-							"application/json": {
-								"schema": {
-									"type": "array",
-									"items": {
-										"$ref": "#/components/schemas/Customer"
-									}
-								},
-								"example": [
-									{
-										"firstname": "Tony",
-										"lastname": "Nguyen",
-										"gender": "Male",
-										"birthday": "23/4/2023",
-										"avatar": "1000001111000111",
-										"score": 0,
-										"address": "Thu Duc City"
-									}
-								]
-							}
+						"success": true,
+						"user": {
+							"id": 13,
+							"username": "employee1",
+							"email": "Mohammed26@gmail.com",
+							"phone": "527-212-0106",
+							"firstname": "Vernon",
+							"lastname": "Denesik",
+							"gender": false,
+							"birthday": "2023-04-28T00:27:45.199Z",
+							"remainingDays": 12,
+							"createdAt": "2023-11-25T05:55:57.626Z",
+							"updatedAt": "2023-11-25T05:55:57.626Z",
+							"LeaveDays": []
 						}
 					},
-					"400": {
-						"description": "Bad request from user"
+					"401": {
+						"description": "Authentication faild"
 					}
 				}
 			}
 		},
-		"/order": {
-			"post": {
-				"tags": ["Order"],
-				"summary": "Create new order",
+		"/users/{id}": {
+			"get": {
+				"security": [
+					{
+						"JWT": []
+					}
+				],
+				"tags": [
+					"User"
+				],
+				"summary": "Get user by id (For admin)",
+				"parameters": [
+					{
+						"in": "path",
+						"name": "id",
+						"schema": {
+							"type": "integer"
+						},
+						"required": true,
+						"description": "Numeric of resouce_id"
+					}
+				],
+				"responses": {
+					"200": {
+						"success": true,
+						"user": {
+							"id": 13,
+							"username": "employee1",
+							"email": "Mohammed26@gmail.com",
+							"phone": "527-212-0106",
+							"firstname": "Vernon",
+							"lastname": "Denesik",
+							"gender": false,
+							"birthday": "2023-04-28T00:27:45.199Z",
+							"remainingDays": 12,
+							"createdAt": "2023-11-25T05:55:57.626Z",
+							"updatedAt": "2023-11-25T05:55:57.626Z",
+							"LeaveDays": []
+						}
+					},
+					"401": {
+						"description": "Authentication faild"
+					}
+				}
+			},
+			"put": {
+				"security": [
+					{
+						"JWT": []
+					}
+				],
+				"tags": [
+					"User"
+				],
+				"summary": "Edit account information",
+				"parameters": [
+					{
+						"in": "path",
+						"name": "id",
+						"schema": {
+							"type": "integer"
+						},
+						"required": true,
+						"description": "Numeric of resouce_id"
+					}
+				],
 				"requestBody": {
-					"description": "Order object",
+					"description": "Object of user for creation",
 					"required": "True",
 					"content": {
 						"application/json": {
 							"schema": {
-								"$ref": "#/components/schemas/Order"
+								"$ref": "#/components/schemas/User"
 							},
 							"example": {
-								"status": "Processing",
-								"descriptions": "First order",
-								"pre_discount_ammount": 0,
-								"shipping_address": "Thu Duc City",
-								"amount": 0,
-								"num_items": 2,
-								"num_completed": 0
+								"username": "employee1",
+								"password": "employee",
+								"firstname": "Nguyen van",
+								"lastname": "A",
+								"email": "Mohammed26@gmail.com",
+								"gender": 1,
+								"birthday": "2023-04-28"
 							}
 						}
 					}
 				},
 				"responses": {
 					"200": {
-						"description": "Create order successfully"
+						"success": true
+					}
+				},
+				"401": {
+					"description": "Authentication faild"
+				},
+				"400": {
+					"description": "Validator Error"
+				}
+			}
+		},
+		"/users/all": {
+			"get": {
+				"security": [
+					{
+						"JWT": []
+					}
+				],
+				"tags": [
+					"User"
+				],
+				"summary": "Get all user (For admin)",
+				"responses": {
+					"200": {
+						"success": true,
+						"result": [
+							{
+								"id": 13,
+								"username": "employee1",
+								"email": "Mohammed26@gmail.com",
+								"phone": "527-212-0106",
+								"firstname": "Vernon",
+								"lastname": "Denesik",
+								"gender": false,
+								"birthday": "2023-04-28T00:27:45.199Z",
+								"remainingDays": 12,
+								"createdAt": "2023-11-25T05:55:57.626Z",
+								"updatedAt": "2023-11-25T05:55:57.626Z",
+								"LeaveDays": []
+							}
+						]
+					},
+					"401": {
+						"description": "Authentication faild"
+					}
+				}
+			}
+		},
+		"/users": {
+			"post": {
+				"security": [
+					{
+						"JWT": []
+					}
+				],
+				"tags": [
+					"User"
+				],
+				"summary": "Create account for employees",
+				"requestBody": {
+					"description": "Object of user for creation",
+					"required": "True",
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/User"
+							},
+							"example": {
+								"username": "employee1",
+								"password": "employee",
+								"firstname": "Nguyen van",
+								"lastname": "A"
+							}
+						}
+					}
+				},
+				"responses": {
+					"200": {
+						"user": {
+							"remainingDays": 12,
+							"role": "employee",
+							"isActive": true,
+							"id": 23,
+							"username": "employee11",
+							"firstname": "nguyen van",
+							"lastname": "A",
+							"email": null,
+							"gender": null,
+							"birthday": null,
+							"phone": null,
+							"updatedAt": "2023-11-25T06:31:43.469Z",
+							"createdAt": "2023-11-25T06:31:43.469Z",
+							"avatar": null
+						},
+						"created": true
+					},
+					"401": {
+						"description": "Authentication faild"
 					},
 					"400": {
-						"description": "Create order failed"
+						"description": "Validator Error"
 					}
+				}
+			}
+		},
+		"/leave_reqs/all": {
+			"get": {
+				"security": [
+					{
+						"JWT": []
+					}
+				],
+				"tags": [
+					"Leave Request"
+				],
+				"summary": "Get all leave request (Admin get all request of all user, employee can get their own)",
+				"responses": {
+					"200": {
+						"success": true,
+						"result": [
+							{
+								"id": 44,
+								"title": "Leave Request 9",
+								"reason": "Reason 9",
+								"description": "Description 9",
+								"status": "pending",
+								"confirmMessage": "",
+								"createdAt": "2023-11-25T05:55:57.636Z",
+								"updatedAt": "2023-11-25T05:55:57.636Z",
+								"userId": 20,
+								"leaveDays": [
+									"2023-11-24",
+									"2023-11-16",
+									"2023-11-08"
+								]
+							},
+							{}
+						]
+					},
+					"401": {
+						"description": "Authentication faild"
+					}
+				}
+			}
+		},
+		"/leave_reqs/{id}": {
+			"get": {
+				"security": [
+					{
+						"JWT": []
+					}
+				],
+				"tags": [
+					"Leave Request"
+				],
+				"summary": "Get leave request by id",
+				"parameters": [
+					{
+						"in": "path",
+						"name": "id",
+						"schema": {
+							"type": "integer"
+						},
+						"required": true,
+						"description": "Numeric of resouce_id"
+					}
+				],
+				"responses": {
+					"200": {
+						"sucsess": true,
+						"result": {
+							"id": 50,
+							"title": "Leave Request 15",
+							"reason": "Reason 15",
+							"description": "Description 15",
+							"status": "pending",
+							"confirmMessage": "",
+							"createdAt": "2023-11-25T05:55:57.636Z",
+							"updatedAt": "2023-11-25T05:55:57.636Z",
+							"userId": 13,
+							"leaveDays": [
+								"2023-10-11"
+							]
+						}
+					},
+					"401": {
+						"description": "Authentication faild"
+					}
+				}
+			},
+			"put": {
+				"security": [
+					{
+						"JWT": []
+					}
+				],
+				"tags": [
+					"Leave Request"
+				],
+				"summary": "Edit Leave Request information (if status is pending for employee)",
+				"parameters": [
+					{
+						"in": "path",
+						"name": "id",
+						"schema": {
+							"type": "integer"
+						},
+						"required": true,
+						"description": "Numeric of resouce_id"
+					}
+				],
+				"requestBody": {
+					"description": "Object of user for creation",
+					"required": "True",
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/User"
+							},
+							"example": {
+								"title": "Xin nghỉ",
+								"reason": "Đi du lịch",
+								"description": "",
+								"leaveDays": [
+									"12-23-2023",
+									"2-27-2024",
+									"2-26-2024",
+									"2-25-2024",
+									"2-23-2024",
+									"2-24-2024"
+								]
+							}
+						}
+					}
+				},
+				"responses": {
+					"200": {
+						"sucsess": true,
+						"result": {
+							"id": 50,
+							"title": "Xin nghỉ",
+							"reason": "Đi du lịch",
+							"description": "",
+							"status": "pending",
+							"confirmMessage": "",
+							"createdAt": "2023-11-25T05:55:57.636Z",
+							"updatedAt": "2023-11-25T05:55:57.636Z",
+							"userId": 13,
+							"leaveDays": [
+								"12-23-2023",
+								"2-27-2024",
+								"2-26-2024",
+								"2-25-2024",
+								"2-23-2024",
+								"2-24-2024"
+							]
+						}
+					}
+				},
+				"401": {
+					"description": "Authentication faild"
+				},
+				"400": {
+					"description": "Validator Error"
+				}
+			}
+		},
+		"/leave_reqs/{id}/cancel": {
+			"put": {
+				"security": [
+					{
+						"JWT": []
+					}
+				],
+				"tags": [
+					"Leave Request"
+				],
+				"summary": "Cancel request for employees (if status is Pending)",
+				"parameters": [
+					{
+						"in": "path",
+						"name": "id",
+						"schema": {
+							"type": "integer"
+						},
+						"required": true,
+						"description": "Numeric of resouce_id"
+					}
+				],
+				"responses": {
+					"200": {
+						"sucsess": true
+					}
+				},
+				"401": {
+					"description": "Authentication faild"
+				}
+			}
+		},
+		"/leave_reqs/{id}/approve": {
+			"put": {
+				"security": [
+					{
+						"JWT": []
+					}
+				],
+				"tags": [
+					"Leave Request"
+				],
+				"summary": "Approve request for admin",
+				"parameters": [
+					{
+						"in": "path",
+						"name": "id",
+						"schema": {
+							"type": "integer"
+						},
+						"required": true,
+						"description": "Numeric of resouce_id"
+					}
+				],
+				"responses": {
+					"200": {
+						"sucsess": true
+					}
+				},
+				"401": {
+					"description": "Authentication faild"
+				}
+			}
+		},
+		"/leave_reqs/{id}/reject": {
+			"put": {
+				"security": [
+					{
+						"JWT": []
+					}
+				],
+				"tags": [
+					"Leave Request"
+				],
+				"summary": "Reject request for admin",
+				"parameters": [
+					{
+						"in": "path",
+						"name": "id",
+						"schema": {
+							"type": "integer"
+						},
+						"required": true,
+						"description": "Numeric of resouce_id"
+					}
+				],
+				"responses": {
+					"200": {
+						"sucsess": true
+					}
+				},
+				"401": {
+					"description": "Authentication faild"
 				}
 			}
 		}
@@ -305,10 +622,10 @@
 				"name": "authorization",
 				"in": "header",
 				"description": "",
-				"scheme": "bearer"
+				"scheme": "bearer",
+				"value": "Bearer <JWT>"
 			}
 		},
-
 		"schemas": {
 			"Login": {
 				"type": "object",
@@ -321,82 +638,38 @@
 					}
 				}
 			},
-			"SignUp": {
-				"type": "object",
-				"properties": {
-					"firstname": {
-						"type": "string"
-					},
-					"lastname": {
-						"type": "string"
-					},
-					"email": {
-						"type": "string"
-					},
-					"password": {
-						"type": "string"
-					}
+			"User": {
+				"username": {
+					"type": "string"
+				},
+				"password": {
+					"type": "string"
+				},
+				"fisrtname": {
+					"type": "string"
+				},
+				"lastname": {
+					"type": "string"
 				}
 			},
-			"Customer": {
+			"LeaveRequest": {
 				"type": "object",
 				"properties": {
-					"firstname": {
-						"type": "string"
-					},
-					"lastname": {
-						"type": "string"
-					},
-					"gender": {
-						"type": "string"
-					},
-					"birthday": {
+					"title": {
 						"type": "string",
-						"format": "date"
+						"required": true
 					},
-					"avatar": {
-						"type": "string"
-					},
-					"score": {
-						"type": "integer"
-					},
-					"address": {
-						"type": "string"
-					}
-				}
-			},
-			"Order": {
-				"type": "object",
-				"properties": {
-					"status": {
-						"type": "string"
-					},
-					"descriptions": {
-						"type": "string"
-					},
-					"pre_discount_ammount": {
-						"type": "number",
-						"format": "double"
-					},
-					"shipping_address": {
-						"type": "string"
-					},
-					"payment_time": {
+					"reason": {
 						"type": "string",
-						"format": "date"
+						"required": true
 					},
-					"payment_method": {
-						"type": "integer"
+					"description": {
+						"type": "string",
+						"required": false
 					},
-					"amount": {
-						"type": "number",
-						"format": "double"
-					},
-					"num_items": {
-						"type": "integer"
-					},
-					"num_completed": {
-						"type": "integer"
+					"leaveDays": {
+						"type": "Date[]",
+						"required": true
 					}
 				}
 			}

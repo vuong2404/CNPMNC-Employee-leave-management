@@ -142,7 +142,7 @@ export class AuthenticationService implements IAuthenticationService {
 			}
 			if (!authHeader?.startsWith("Bearer ")) {
 				throw new UnauthorizedError(
-					"Authentication Error! Invalid Access Token."
+					"Authorization Error! Invalid Access Token."
 				);
 			}
 

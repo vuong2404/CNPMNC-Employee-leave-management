@@ -7,6 +7,7 @@ import { HttpStatusCode } from "../Constants";
 
 class AuthMiddleware extends BaseMiddleware {
 	protected static handle(): any {
+		console.log("Authenticating........")
 		this.verifyToken();
 	}
 
@@ -23,7 +24,7 @@ class AuthMiddleware extends BaseMiddleware {
 		try {
 			const authHeader = this.request.header("Authorization");
 			if (!authHeader?.startsWith("Bearer ")) {
-				throw new UnauthorizedError("You are unauthenticated!");
+				throw new UnauthorizedError("You are unauthenticated!!!	!");
 			}
 			let token = authHeader.split(" ")[1];
 			const decoded = await TokenUtil.verify(token);

@@ -12,26 +12,40 @@ import bcrypt from "bcrypt";
 import { ACCESS_TOKEN, REFRESH_TOKEN, Role } from "../Constants";
 import jwt from "jsonwebtoken";
 import { Password, TokenUtil } from "../Utils";
+import LeaveRequest from "./LeaveRequest";
+import LeaveDay from "./LeaveDay";
+import ApprovedDay from "./ApprovedDay";
 class User extends Model {
 	declare createToken: HasManyCreateAssociationMixin<Token>;
 	declare getTokens: HasManyGetAssociationsMixin<Token>;
 	declare removeTokens: HasManyRemoveAssociationsMixin<Token, number>;
+
+	declare getLeaveRequests: HasManyGetAssociationsMixin<LeaveRequest>;
 
 	declare id: number;
 	declare firstname: string;
 	declare lastname: string;
 	declare email: string;
 	declare hashedPassword: string;
-	declare role: string;
+	declare readonly role: string;
 	declare phone: string;
 	declare gender: boolean;
 	declare birthday: Date;
-	declare avatar: Blob
-	declare remainingDays: number ;;
+	declare avatar: Blob;
+	declare remainingDays: number;
 
 	public static associate() {
 		User.hasMany(Token, {
 			foreignKey: "userId",
+		});
+		User.hasMany(LeaveRequest, {
+			foreignKey: "userId",
+		});
+
+		User.belongsToMany(LeaveDay, {
+			through: ApprovedDay,
+			foreignKey: "leaveDayId",
+			otherKey: "userId",
 		});
 	}
 	public async checkPassword(password: string) {
@@ -57,7 +71,7 @@ class User extends Model {
 			ACCESS_TOKEN.secret,
 			{
 				expiresIn: ACCESS_TOKEN.expiry,
-			}
+			},
 		);
 
 		return accessToken;
@@ -76,7 +90,7 @@ class User extends Model {
 			REFRESH_TOKEN.secret,
 			{
 				expiresIn: REFRESH_TOKEN.expiry,
-			}
+			},
 		);
 
 		const rTknHash = TokenUtil.hash(refreshToken, REFRESH_TOKEN.secret);
@@ -86,7 +100,6 @@ class User extends Model {
 
 		return refreshToken;
 	}
-	
 }
 
 User.init(
@@ -98,7 +111,6 @@ User.init(
 		},
 		email: {
 			type: DataTypes.STRING,
-			allowNull: false,
 		},
 		phone: {
 			type: DataTypes.STRING,
@@ -122,7 +134,8 @@ User.init(
 		},
 		remainingDays: {
 			type: DataTypes.INTEGER,
-			allowNull: false
+			allowNull: false,
+			defaultValue: 12,
 		},
 		role: {
 			type: DataTypes.STRING,
@@ -142,22 +155,32 @@ User.init(
 	{
 		defaultScope: {
 			where: {
-				isActive: true
-			}
+				isActive: true,
+			},
 		},
 		scopes: {
 			sendToClient: {
-				attributes: ["id", "username", "email", "firstname", "lastname", "phone","phone", "avatar", "remainingDays"]
-			}
+				attributes: [
+					"id",
+					"username",
+					"email",
+					"firstname",
+					"lastname",
+					"phone",
+					"phone",
+					"avatar",
+					"remainingDays",
+				],
+			},
 		},
 		sequelize: Loader.sequelize,
-	}
+	},
 );
 
 User.addHook("beforeCreate", async (instance) => {
 	instance.setDataValue(
 		"hashedPassword",
-		await Password.hash(instance.getDataValue("hashedPassword"))
+		await Password.hash(instance.getDataValue("hashedPassword")),
 	);
 });
 
