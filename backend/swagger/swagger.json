@@ -33,6 +33,11 @@
 			"description": "API for Leave Reques in the system"
 		}
 	],
+	"security": [
+		{
+			"cookieAuth": []
+		}
+	],
 	"paths": {
 		"/auth/login": {
 			"post": {
@@ -55,12 +60,21 @@
 						}
 					}
 				},
+				"security": [],
 				"responses": {
 					"200": {
 						"success": true,
 						"accessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjMwIiwiZnVsbE5hbWUiOiJtaW5oIHZ1b25nIiwiZW1haWwiOiJuc3MxQGdtYWlsLmNvbSIsImlhdCI6MTY5OTg5MjMxMSwiZXhwIjoxNjk5ODkyMzQxfQ.ZTEazQbXpWb8hvRfgPlpke_NDI5VfofZ10_MVygYPOQ",
 						"user": {
 							"id": 30
+						},
+						"headers": {
+							"Set-Cookie": {
+								"schema": {
+									"type": "string",
+									"example": "refreshToken=abcde12345; Path=/; HttpOnly"
+								}
+							}
 						}
 					},
 					"400": {
@@ -396,6 +410,73 @@
 				}
 			}
 		},
+		"/leave_reqs": {
+			"post": {
+				"security": [
+					{
+						"JWT": []
+					}
+				],
+				"tags": [
+					"Leave Request"
+				],
+				"summary": "Edit Leave Request information (if status is pending for employee)",
+				"requestBody": {
+					"description": "Object of user for creation",
+					"required": "True",
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/User"
+							},
+							"example": {
+								"title": "Xin nghỉ",
+								"reason": "Đi du lịch",
+								"description": "",
+								"leaveDays": [
+									"12-23-2023",
+									"2-27-2024",
+									"2-26-2024",
+									"2-25-2024",
+									"2-23-2024",
+									"2-24-2024"
+								]
+							}
+						}
+					}
+				},
+				"responses": {
+					"200": {
+						"sucsess": true,
+						"result": {
+							"id": 50,
+							"title": "Xin nghỉ",
+							"reason": "Đi du lịch",
+							"description": "",
+							"status": "pending",
+							"confirmMessage": "",
+							"createdAt": "2023-11-25T05:55:57.636Z",
+							"updatedAt": "2023-11-25T05:55:57.636Z",
+							"userId": 13,
+							"leaveDays": [
+								"12-23-2023",
+								"2-27-2024",
+								"2-26-2024",
+								"2-25-2024",
+								"2-23-2024",
+								"2-24-2024"
+							]
+						}
+					}
+				},
+				"401": {
+					"description": "Authentication faild"
+				},
+				"400": {
+					"description": "Validator Error"
+				}
+			}
+		},
 		"/leave_reqs/{id}": {
 			"get": {
 				"security": [
@@ -624,6 +705,11 @@
 				"description": "",
 				"scheme": "bearer",
 				"value": "Bearer <JWT>"
+			},
+			"cookieAuth": {
+				"type": "apiKey",
+				"in": "cookie",
+				"name": "refreshToken"
 			}
 		},
 		"schemas": {
