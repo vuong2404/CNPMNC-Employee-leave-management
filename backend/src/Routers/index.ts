@@ -5,6 +5,7 @@ import { NotFoundError } from "../Errors";
 import { userRouter } from "./user";
 import { AuthMiddleware } from "../Middlewares";
 import { Authorization } from "../Middlewares/Authorization";
+import { leaveRequestRouter } from "./leaveRequest";
 
 class Routers {
 	public initialize(app: Application) {
@@ -18,8 +19,17 @@ class Routers {
 			userRouter,
 		);
 
+		// leave request routes
+		router.use(
+			"/leave_reqs",
+			AuthMiddleware.initialize,
+			Authorization.initialize,
+			leaveRequestRouter,
+		);
+
+
 		// Auth routes
-		app.use("/auth", authRouter);
+		router.use("/auth", authRouter);
 
 		// Add prefix
 		app.use("/api", router);

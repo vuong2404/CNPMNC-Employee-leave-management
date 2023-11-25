@@ -19,6 +19,9 @@ module.exports = {
             { role: 'manager', resource: 'permissions', action: 'update:any', attributes: '*', createdAt: d, updatedAt: d },
             { role: 'manager', resource: 'permissions', action: 'delete:any', attributes: '*', createdAt: d, updatedAt: d },
             
+            { role: 'employee', resource: 'users', action: 'read:own', attributes: '*', createdAt: d, updatedAt: d },
+            // { role: 'employee', resource: 'users', action: 'update:own', attributes: '*', createdAt: d, updatedAt: d },
+          
             { role: 'employee', resource: 'leave_reqs', action: 'read:own', attributes: '*', createdAt: d, updatedAt: d },
             { role: 'employee', resource: 'leave_reqs', action: 'create:own', attributes: '*', createdAt: d, updatedAt: d },
             { role: 'employee', resource: 'leave_reqs', action: 'update:own', attributes: '*', createdAt: d, updatedAt: d },

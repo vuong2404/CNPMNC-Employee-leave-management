@@ -19,9 +19,14 @@ import {
 import {
 	AuthController,
 	IAuthController,
+	ILeaveRequestController,
 	IUserController,
+	LeaveRequestController,
 	UserController,
 } from "../Controllers";
+import { ILeaveRequestService, LeaveRequestService } from "../Services/LeaveRequestService";
+import { ILeaveRequestRepository } from "../Repositories/ILeaveRequestRepository";
+import { LeaveRequestRepository } from "../Repositories/implementation/LeaveRequestRepository";
 
 
 class InversifyContainer {
@@ -40,16 +45,19 @@ class InversifyContainer {
 		// register controller 
 		this.container.bind<IAuthController>(TYPES.IAuthController).to(AuthController)
 		this.container.bind<IUserController>(TYPES.IUserController).to(UserController)
+		this.container.bind<ILeaveRequestController>(TYPES.ILeaveRequestController).to(LeaveRequestController)
 
 		// register service 
 		this.container.bind<IAuthenticationService>(TYPES.IAuthenticationService).to(AuthenticationService);
 		this.container.bind<IAuthorizationService>(TYPES.IAuthorizationService).to(AuthorizationService);
 		this.container.bind<IUserService>(TYPES.IUserService).to(UserService);
+		this.container.bind<ILeaveRequestService>(TYPES.ILeaveRequestService).to(LeaveRequestService);
 
 		// register repository
 		this.container.bind<IUserRepository>(TYPES.IUserRepository).to(UserRepository);
 		this.container.bind<IPermissionRepository>(TYPES.IPermissionRepository).to(PermissionRepository);
 		this.container.bind<ITokenRepository>(TYPES.ITokenRepository).to(TokenRepository);
+		this.container.bind<ILeaveRequestRepository>(TYPES.ILeaveRequestRepository).to(LeaveRequestRepository);
 
 	}
 }
