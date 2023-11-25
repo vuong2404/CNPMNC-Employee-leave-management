@@ -7,6 +7,7 @@ import { TYPES } from "../Types/type";
 
 const authController = container.get<IAuthController>(TYPES.IAuthController)
 const router = Router()
+
 router.post('/login', AuthValidators.loginValidator, authController.login)
 router.post('/refresh', authController.refreshToken)
 

@@ -18,7 +18,7 @@ export class BaseRepository<M extends Model> implements IBaseRepository<M> {
 	}
 
 	public async findById(id: number, attributes?: string[]): Promise<M | null> {
-		return  await this._model.findByPk(id, {
+		return await this._model.findByPk(id, {
 			attributes,
 		});
 
