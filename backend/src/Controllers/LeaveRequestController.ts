@@ -40,7 +40,7 @@ export class LeaveRequestController implements ILeaveRequestController {
 		this.leaveRequestService.reject(req, res, next);
 	};
 	public cancel = (req: Request, res: Response, next: NextFunction) => {
-		this.leaveRequestService.reject(req, res, next);
+		this.leaveRequestService.cancel(req, res, next);
 	};
 	public search = (req: Request, res: Response, next: NextFunction) => {
 		this.leaveRequestService.getById(req, res, next);

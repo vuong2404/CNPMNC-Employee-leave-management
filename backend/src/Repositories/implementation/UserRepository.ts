@@ -16,7 +16,7 @@ export class UserRepository extends BaseRepository<User> implements IUserReposit
 	}
 
 	public async findById(id: number, attributes?: string[]) {
-		return this._model.findByPk(id, {include: {model: LeaveDay}})
+		return this._model.findByPk(id, {include: {model: LeaveDay, as: "approvedDays"}})
 	}
 
 	public async findByEmail(email: string): Promise<User | null> {
@@ -49,7 +49,7 @@ export class UserRepository extends BaseRepository<User> implements IUserReposit
 
 		let result = await user.getLeaveRequests({ include: { model: LeaveDay, as: "leaveDays" } });
 
-		return this.parseLeaveDay(result);
+		return result;
 	}
 
 	public async getLeaveRequest(userId: number, leaveRequestId: number | string) {
@@ -61,19 +61,6 @@ export class UserRepository extends BaseRepository<User> implements IUserReposit
 			include: { model: LeaveDay, as: "leaveDays" },
 			where: { id: leaveRequestId },
 		});
-        return this.parseLeaveDay(result)[0]
+        return result[0];
 	}
-
-	// helper function
-	private parseLeaveDay = (leaveRequests: LeaveRequest[]) => {
-	    const result = leaveRequests.map((leaveRequest: any) => {
-			const leaveRequestJSON = leaveRequest.toJSON();
-			return {
-				...leaveRequestJSON,
-				leaveDays: leaveRequestJSON.leaveDays.map((leaveDay: any) => leaveDay.date)
-			};
-		});
-
-        return result ;
-	};
 }
