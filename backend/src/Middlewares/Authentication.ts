@@ -1,7 +1,7 @@
 import { NextFunction, Request, Response } from "express";
 import { TokenUtil } from "../Utils";
 import { BaseMiddleware } from "./BaseMiddleware";
-import { BadRequestError, CustomError, UnauthorizedError } from "../Errors";
+import { BadRequestError, CustomError, CustomTokenExpiredError, UnauthorizedError } from "../Errors";
 import { TokenExpiredError, JsonWebTokenError } from "jsonwebtoken";
 import { HttpStatusCode } from "../Constants";
 
@@ -40,7 +40,9 @@ class AuthMiddleware extends BaseMiddleware {
 			);
 			this.next();
 		} catch (error: any) {
-			if (error instanceof TokenExpiredError || JsonWebTokenError) {
+			if (error instanceof TokenExpiredError) {
+				this.next(new CustomTokenExpiredError())
+			} else if (error instanceof JsonWebTokenError) {
 				this.next(new UnauthorizedError(error.message, error.stack));
 			}
 			this.next(error);

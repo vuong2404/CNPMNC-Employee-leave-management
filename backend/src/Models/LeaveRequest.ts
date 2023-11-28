@@ -1,4 +1,5 @@
 import {
+	BelongsToGetAssociationMixin,
 	DataTypes,
 	HasManyAddAssociationMixin,
 	HasManyAddAssociationsMixin,
@@ -23,10 +24,15 @@ class LeaveRequest extends Model {
 	declare addLeaveDays: HasManyAddAssociationsMixin<LeaveDay, LeaveDay>;
 	declare addLeaveDay: HasManyAddAssociationMixin<LeaveDay, LeaveDay>;
 
+
+	declare getUser: BelongsToGetAssociationMixin<User>
+
 	declare status: LeaveRequestStatus ;
 
 
 	public static associate() {
+		console.log("LeaveRequest association") ;
+
 		LeaveRequest.belongsTo(User, {
 			foreignKey: "userId",
 		});

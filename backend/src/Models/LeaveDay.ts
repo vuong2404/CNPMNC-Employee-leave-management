@@ -8,7 +8,7 @@ class LeaveDay extends Model {
 	declare id: number;	
 	declare date: DateOnlyDataType;	
 	declare requestId: number
-	public static associate() {
+	public static  associate() {
 		LeaveDay.belongsTo(LeaveRequest, {
 			foreignKey: "requestId",
 			onDelete: "CASCADE",
@@ -17,8 +17,8 @@ class LeaveDay extends Model {
 
 		LeaveDay.belongsToMany(User, {
 			through: ApprovedDay,
-			foreignKey: "userId",
-			otherKey: "leaveDayId",
+			foreignKey: "leaveDayId",
+			otherKey: "userId",
 		});
 	}
 }
@@ -28,12 +28,22 @@ LeaveDay.init(
 		date: {
 			type: DataTypes.DATEONLY,
 			allowNull: false,
+			unique: true
 		},
+		requestId: {
+			type: DataTypes.INTEGER,
+			allowNull: false
+		}
 	},
 	{
 		sequelize: Loader.sequelize,
 	},
 );
+
+
+LeaveDay.addHook("beforeCreate", (instance: LeaveDay) => {
+	console.log("before update or insert. Check...........")
+}) 
 
 
 

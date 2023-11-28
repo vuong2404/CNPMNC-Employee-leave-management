@@ -20,7 +20,7 @@ export class LeaveRequestRepository
 		const result = await this._model.findAll({
 			include: { model: LeaveDay, as: "leaveDays" },
 		});
-		return this.parseLeaveDay(result);
+		return result
 	}
 
 	public async findById(id: number): Promise<LeaveRequest | null> {
@@ -31,7 +31,7 @@ export class LeaveRequestRepository
 		if (!result) {
 			throw new RecordNotFoundError();
 		}
-		return this.parseLeaveDay([result])[0];
+		return result ;
 	}
 
 	public async create(data: LeaveRequestDTO) {
@@ -43,7 +43,7 @@ export class LeaveRequestRepository
 		const result = await this._model.create(leaveRequestData, {
 			include: { model: LeaveDay, as: "leaveDays" },
 		});
-		return this.parseLeaveDay([result])[0];
+		return result;
 	}
 
 	public async update(id: number, data: LeaveRequestDTO) {
@@ -94,7 +94,7 @@ export class LeaveRequestRepository
 			await transaction.commit();
 
 			// Reload the model to get the updated associations
-			return this.parseLeaveDay([leaveRequest])[0];
+			return leaveRequest
 		} catch (error) {
 			await transaction.rollback();
 			throw error;
@@ -104,22 +104,4 @@ export class LeaveRequestRepository
 	public async updateStatus(id:number, status: LeaveRequestStatus) {
 		return await this._model.update({status}, {where: {id}})
 	}
-
-	// public async checkValidLeaveRequest(id:number) {
-
-	// }
-
-	private parseLeaveDay = (leaveRequests: LeaveRequest[]) => {
-		const result = leaveRequests.map((leaveRequest: any) => {
-			const leaveRequestJSON = leaveRequest.toJSON();
-			return {
-				...leaveRequestJSON,
-				leaveDays: leaveRequestJSON.leaveDays.map(
-					(leaveDay: any) => leaveDay.date,
-				),
-			};
-		});
-
-		return result;
-	};
 }
