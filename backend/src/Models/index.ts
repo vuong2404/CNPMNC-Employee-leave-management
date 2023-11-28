@@ -1,9 +1,12 @@
+import Loader from "../Loaders";
 import Association from "./Associations";
 
 class Tables {
     public async createTables() {
         try {
             await Association.initialize();
+            // await Loader.sequelize.sync({alter:true}).then(() => console.log("Syncing..."))
+
         }
         catch (err) {
             console.log("Create all tables failed!");

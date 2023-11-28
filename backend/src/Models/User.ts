@@ -1,4 +1,4 @@
-import { DataTypes } from "sequelize";
+import { DataTypes, HasManyAddAssociationMixin, HasManyAddAssociationsMixin, HasManyCountAssociationsMixin, HasManySetAssociationsMixin } from "sequelize";
 import Loader from "../Loaders";
 import Token from "./Token";
 import {
@@ -15,12 +15,18 @@ import { Password, TokenUtil } from "../Utils";
 import LeaveRequest from "./LeaveRequest";
 import LeaveDay from "./LeaveDay";
 import ApprovedDay from "./ApprovedDay";
+import { BadRequestError } from "../Errors";
 class User extends Model {
 	declare createToken: HasManyCreateAssociationMixin<Token>;
 	declare getTokens: HasManyGetAssociationsMixin<Token>;
 	declare removeTokens: HasManyRemoveAssociationsMixin<Token, number>;
 
 	declare getLeaveRequests: HasManyGetAssociationsMixin<LeaveRequest>;
+
+	declare getApprovedDays: HasManyGetAssociationsMixin<LeaveDay> ;	
+	declare addApprovedDays: HasManyAddAssociationsMixin<LeaveDay, LeaveDay> 
+	declare setApprovedDays: HasManySetAssociationsMixin<LeaveDay, LeaveDay>
+	declare countApprovedDays: HasManyCountAssociationsMixin
 
 	declare id: number;
 	declare firstname: string;
@@ -35,17 +41,19 @@ class User extends Model {
 	declare remainingDays: number;
 
 	public static associate() {
-		User.hasMany(Token, {
-			foreignKey: "userId",
-		});
+		console.log("User association") ;
+
+		User.hasMany(Token, {foreignKey: "userId"})
+
 		User.hasMany(LeaveRequest, {
-			foreignKey: "userId",
+			foreignKey: "userId"
 		});
 
 		User.belongsToMany(LeaveDay, {
 			through: ApprovedDay,
-			foreignKey: "leaveDayId",
-			otherKey: "userId",
+			foreignKey: "userId",
+			otherKey: "leaveDayId",
+			as: "approvedDays"
 		});
 	}
 	public async checkPassword(password: string) {
@@ -53,6 +61,10 @@ class User extends Model {
 		const result = await bcrypt.compare(password, this.hashedPassword);
 		console.log(result ? "Password Ok!" : "Incorrect password");
 		return result;
+	}
+
+	public async checkLeaveDays(leaveDays: LeaveDay[]) {
+		// return await this.getApprovedDays();
 	}
 
 	public generateAccessToken() {
@@ -183,5 +195,22 @@ User.addHook("beforeCreate", async (instance) => {
 		await Password.hash(instance.getDataValue("hashedPassword")),
 	);
 });
+
+// User.addHook("afterUpdate", (user: User) => {
+// 	if (user.remainingDays < 0) {
+// 		throw new BadRequestError()
+// 	}
+// })
+
+User.addHook("beforeUpdate", async (instance: User) => {
+	console.log("Before update user")
+	const num = await instance.countApprovedDays() ;
+	if (instance.remainingDays + num !== 12 ) {
+		instance.update({remainingDays: 12 - num})
+	}
+})
+
+
+
 
 export default User;

@@ -12,8 +12,9 @@ import {
 } from "../Errors";
 import { IUserRepository } from "../Repositories";
 import { validationResult } from "express-validator";
-import { LeaveRequestStatus } from "../Constants";
+import { DEFAULT_LEAVE_DAYS, LeaveRequestStatus } from "../Constants";
 import Loader from "../Loaders";
+import { LeaveRequest } from "../Models";
 
 export interface ILeaveRequestService {
 	getAll: (req: Request, res: Response, next: NextFunction) => Promise<void>;
@@ -35,15 +36,16 @@ export class LeaveRequestService implements ILeaveRequestService {
 	public getAll = async (req: Request, res: Response, next: NextFunction) => {
 		try {
 			if (req.action === "read:any") {
+				const result = await this.leaveRequestRepository.all();
 				res.send({
 					success: true,
-					result: await this.leaveRequestRepository.all(),
+					result: this.parseLeaveDay(result),
 				});
 			} else if (req.action === "read:own") {
-				const user = await this.userRequestRepository.getLeaveRequests(
+				const leaveRequest = await this.userRequestRepository.getLeaveRequests(
 					req.userId,
 				);
-				res.send({ success: true, result: user });
+				res.send({ success: true, result: this.parseLeaveDay(leaveRequest) });
 			} else {
 				throw new ForbiddenError();
 			}
@@ -55,11 +57,15 @@ export class LeaveRequestService implements ILeaveRequestService {
 	public getById = async (req: Request, res: Response, next: NextFunction) => {
 		try {
 			if (req.action === "read:any") {
+				const result = await this.leaveRequestRepository.findById(
+					Number(req.params["id"]),
+				);
+				if (!result) {
+					throw new RecordNotFoundError();
+				}
 				res.send({
 					sucsess: true,
-					result: await this.leaveRequestRepository.findById(
-						Number(req.params["id"]),
-					),
+					result: this.parseLeaveDay([result])[0],
 				});
 			} else if (req.action === "read:own") {
 				const result = await this.userRequestRepository.getLeaveRequest(
@@ -73,7 +79,7 @@ export class LeaveRequestService implements ILeaveRequestService {
 
 				res.send({
 					success: true,
-					result,
+					result: this.parseLeaveDay([result])[0],
 				});
 			}
 		} catch (error) {
@@ -98,7 +104,7 @@ export class LeaveRequestService implements ILeaveRequestService {
 				leaveDays,
 			});
 
-			res.send({ success: true, result });
+			res.send({ success: true, result: this.parseLeaveDay([result])[0] });
 		} catch (error) {
 			console.log(error);
 			next(error);
@@ -125,7 +131,7 @@ export class LeaveRequestService implements ILeaveRequestService {
 					},
 				);
 
-				res.send({ success: true, result });
+				res.send({ success: true, result: this.parseLeaveDay([result])[0] });
 			} else {
 				throw new ForbiddenError();
 			}
@@ -135,31 +141,57 @@ export class LeaveRequestService implements ILeaveRequestService {
 		}
 	};
 	public approve = async (req: Request, res: Response, next: NextFunction) => {
+		const transaction = await Loader.sequelize.transaction();
 		try {
 			const id = Number(req.params["id"]);
 			if (req.action === "update:any") {
+				//  Check valid params["id"]
 				const leaveRequest = await this.leaveRequestRepository.findById(id);
 				if (!leaveRequest) {
 					throw new RecordNotFoundError();
 				}
-				if (!(leaveRequest.status === LeaveRequestStatus.PENDING)) {
+
+				// Check leave Request status
+				if (leaveRequest.status !== LeaveRequestStatus.PENDING) {
 					throw new BadRequestError(
 						`CANNOT APPROVE the leave request with status ${leaveRequest.status}`,
 					);
 				} else {
-					const transaction = Loader.sequelize.transaction()
-					console.log(leaveRequest.getLeaveDays())
+					// Get the leave days of the request
+					const leaveDays = await leaveRequest.getLeaveDays({ transaction });
+
+					// Find employee who create the request
+					const user = await leaveRequest.getUser({transaction});
+
+					// Add the leave days in the request to the approved days of employee
+					await user.addApprovedDays(leaveDays, { transaction });
+
+					// Update remainings day of that employee
+					const numOfLeaveDays = await user.countApprovedDays({ transaction });
+					
+					if (numOfLeaveDays > DEFAULT_LEAVE_DAYS ) {
+						throw new BadRequestError()
+					}
+					await user.update(
+						{ remainingLeaveDays: DEFAULT_LEAVE_DAYS - numOfLeaveDays },
+						{ transaction },
+					);
+
+					// Update status of leave request
 					const result = await this.leaveRequestRepository.updateStatus(
 						id,
 						LeaveRequestStatus.APPROVED,
+						transaction,
 					);
-					res.send({ success: true });
+
+					await transaction.commit();
+					res.send({ success: true, result });
 				}
 			} else {
 				throw new ForbiddenError();
 			}
 		} catch (error) {
-			console.log(error);
+			transaction.rollback();
 			next(error);
 		}
 	};
@@ -189,7 +221,7 @@ export class LeaveRequestService implements ILeaveRequestService {
 			console.log(error);
 			next(error);
 		}
-	}
+	};
 	public cancel = async (req: Request, res: Response, next: NextFunction) => {
 		try {
 			const id = Number(req.params["id"]);
@@ -218,4 +250,19 @@ export class LeaveRequestService implements ILeaveRequestService {
 		}
 	};
 	public search = async (req: Request, res: Response, next: NextFunction) => {};
+
+	// helper function
+	private parseLeaveDay = (leaveRequests: LeaveRequest[]) => {
+		const result = leaveRequests.map((leaveRequest: any) => {
+			const leaveRequestJSON = leaveRequest.toJSON();
+			return {
+				...leaveRequestJSON,
+				leaveDays: leaveRequestJSON.leaveDays.map(
+					(leaveDay: any) => leaveDay.date,
+				),
+			};
+		});
+
+		return result;
+	};
 }

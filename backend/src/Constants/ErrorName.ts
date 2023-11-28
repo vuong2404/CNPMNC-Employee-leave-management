@@ -8,4 +8,6 @@ export enum ErrorName  {
     RECORD_NOT_FOUND = "RecordNotFoundError", // 404
     CONFLICT = "Conflict", // 409
     INTERNAL_SERVER_ERROR = "InternalServerError", // 500
+
+    TOKEN_EXPIRED = "TokenExpiredError", // 401
 }
