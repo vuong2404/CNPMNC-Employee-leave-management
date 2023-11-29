@@ -420,7 +420,7 @@
 				"tags": [
 					"Leave Request"
 				],
-				"summary": "Edit Leave Request information (if status is pending for employee)",
+				"summary": "Create leave request",
 				"requestBody": {
 					"description": "Object of user for creation",
 					"required": "True",
