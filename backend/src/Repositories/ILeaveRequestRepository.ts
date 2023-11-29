@@ -15,4 +15,5 @@ export interface ILeaveRequestRepository extends IBaseRepository<LeaveRequest> {
     create(data: LeaveRequestDTO, transaction?:Transaction):Promise<LeaveRequest> ;
     update(id: number, data: LeaveRequestDTO, transaction?:Transaction) : Promise<LeaveRequest> ;
     updateStatus(id:number, status: LeaveRequestStatus, transaction?:Transaction): Promise<any> ;
+    deleteLeaveRequest(id: number,  data: number): Promise<boolean>;
 }

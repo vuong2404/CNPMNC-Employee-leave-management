@@ -25,6 +25,7 @@ export interface ILeaveRequestService {
 	reject: (req: Request, res: Response, next: NextFunction) => Promise<void>;
 	cancel: (req: Request, res: Response, next: NextFunction) => Promise<void>;
 	search: (req: Request, res: Response, next: NextFunction) => Promise<void>;
+	deleteRequest:  (req: Request, res: Response, next: NextFunction) => Promise<void>;
 }
 
 @injectable()
@@ -249,7 +250,26 @@ export class LeaveRequestService implements ILeaveRequestService {
 			next(error);
 		}
 	};
-	public search = async (req: Request, res: Response, next: NextFunction) => {};
+
+	public deleteRequest = async (req: Request, res: Response, next: NextFunction) => {
+		try {
+			const id = Number(req.params["id"]);
+			const userId = Number(req.userId)
+			if (req.action === "delete:own") {
+				await this.leaveRequestRepository.deleteLeaveRequest(id, userId)
+			}
+			else {
+				throw new ForbiddenError();
+			}
+			res.send({ success: true});
+		}
+		catch(err) {
+			console.log(err);
+			next(err);
+		}
+	}
+
+	public search = async (req: Request, res: Response, next: NextFunction) => {}; 
 
 	// helper function
 	private parseLeaveDay = (leaveRequests: LeaveRequest[]) => {
