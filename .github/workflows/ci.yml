@@ -28,4 +28,4 @@ jobs:
         cache-dependency-path: './backend/package-lock.json'
     - run: npm ci
     - run: npm run build --if-present
-    - run: num test
+    - run: npm run test
