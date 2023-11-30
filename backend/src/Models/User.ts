@@ -29,6 +29,7 @@ class User extends Model {
 	declare countApprovedDays: HasManyCountAssociationsMixin
 
 	declare id: number;
+	declare username: string ;
 	declare firstname: string;
 	declare lastname: string;
 	declare email: string;
