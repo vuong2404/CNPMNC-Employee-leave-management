@@ -9,11 +9,13 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-
+    
     strategy:
       matrix:
         node-version: [16.x, 18.x, 20.x]
-
+    defaults:
+      run:
+        working-directory: ./app
     steps:
     - name: Checkout repository
       uses: actions/checkout@v2
@@ -23,7 +25,6 @@ jobs:
       with:
         node-version: ${{ matrix.node-version }}
         cache: 'npm'
-        working-directory: ./backend
 
     - name: Debug directory contents
       run: ls -al ./backend
