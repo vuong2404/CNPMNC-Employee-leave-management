@@ -7,5 +7,5 @@ export interface IUserRepository extends IBaseRepository<User> {
     findByUsername(username : string) : Promise<User | null> ;
     findOrCreate(data: any) : Promise<[User,boolean]> ;
     getLeaveRequests(userId: number) : Promise<LeaveRequest[]> ;
-    getLeaveRequest(userId: number, leaveRequestId: number | string):Promise<LeaveRequest> ;
+    getLeaveRequest(userId: number, leaveRequestId: number | string):Promise<LeaveRequest | null> ;
 }

@@ -2,6 +2,7 @@ import { Model, ModelStatic } from "sequelize";
 import { IBaseRepository } from "../IBaseRepository";
 import { injectable, unmanaged } from "inversify";
 import 'reflect-metadata';
+import { RecordNotFoundError } from "../../Errors";
 
 @injectable()
 export class BaseRepository<M extends Model> implements IBaseRepository<M> {
@@ -36,7 +37,7 @@ export class BaseRepository<M extends Model> implements IBaseRepository<M> {
 			return resource.update(data);
 		}
 
-		throw new Error();
+		throw new RecordNotFoundError();
 	}
 
 	public async delete(id: number): Promise<boolean> {
