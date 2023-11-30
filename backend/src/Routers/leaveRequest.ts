@@ -13,6 +13,7 @@ router.put("/:id",  LeaveRequestValidators.updateLeaveRequest, leaveRequestContr
 router.put("/:id/approve", leaveRequestController.approve);
 router.put("/:id/reject", leaveRequestController.reject);
 router.put("/:id/cancel", leaveRequestController.cancel);
+router.delete("/:id", leaveRequestController.deleteRequest);
 
 
 

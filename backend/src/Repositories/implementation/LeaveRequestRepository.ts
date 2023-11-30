@@ -11,8 +11,7 @@ import { LeaveRequestStatus } from "../../Constants";
 @injectable()
 export class LeaveRequestRepository
 	extends BaseRepository<LeaveRequest>
-	implements ILeaveRequestRepository
-{
+	implements ILeaveRequestRepository {
 	constructor() {
 		super(LeaveRequest);
 	}
@@ -31,7 +30,7 @@ export class LeaveRequestRepository
 		if (!result) {
 			throw new RecordNotFoundError();
 		}
-		return result ;
+		return result;
 	}
 
 	public async create(data: LeaveRequestDTO) {
@@ -101,7 +100,29 @@ export class LeaveRequestRepository
 		}
 	}
 
-	public async updateStatus(id:number, status: LeaveRequestStatus) {
-		return await this._model.update({status}, {where: {id}})
+	public async updateStatus(id: number, status: LeaveRequestStatus) {
+		return await this._model.update({ status }, { where: { id } })
+	}
+
+	public async deleteLeaveRequest(id: number, data: number) {
+		const transaction = await Loader.sequelize.transaction();
+		try {
+			const userId = data;
+			const leaveRequest = await this._model.findOne({
+				where: { id, userId },
+				transaction,
+			});
+			if (!leaveRequest) {
+				throw new RecordNotFoundError();
+			}
+
+			await leaveRequest.destroy();
+			await transaction.commit();
+			return true
+		}
+		catch (err) {
+			await transaction.rollback();
+			return false
+		}
 	}
 }
