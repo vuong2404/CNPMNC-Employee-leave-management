@@ -12,17 +12,27 @@ jobs:
 
     strategy:
       matrix:
-        node-version: [14.x, 16.x, 18.x]
+        node-version: [16.x, 18.x, 20.x]
 
     steps:
     - name: Checkout repository
       uses: actions/checkout@v2
+
+    - name: Debug Node.js and npm versions
+      run: |
+        node --version
+        npm --version
+        cd ./backend
+        npm --version
 
     - name: Use Node.js ${{ matrix.node-version }}
       uses: actions/setup-node@v3
       with:
         node-version: ${{ matrix.node-version }}
         cache: 'npm'
+
+    - name: Debug directory contents
+      run: ls -al ./backend
 
     - name: Install dependencies and run tests
       run: |
