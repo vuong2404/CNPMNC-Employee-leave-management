@@ -7,9 +7,13 @@ on:
     branches: ["master"]
 
 jobs:
-  test:
+  test: 
     name: Test
     runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: ./backend/
 
     strategy: 
       matrix:
@@ -38,6 +42,10 @@ jobs:
     name: Deploy
     needs: [test] # Our tests must pass in order to run the deploy job
     runs-on: ubuntu-latest
+    
+    defaults:
+      run:
+        working-directory: ./backend/
 
     steps: 
       - name: Deploy to production
