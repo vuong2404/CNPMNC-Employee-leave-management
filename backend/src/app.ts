@@ -23,7 +23,7 @@ declare global {
 		}
 	}
 }
-class Server {
+export class Server {
 	protected app: Application;
 	protected server: any;
 
@@ -32,7 +32,9 @@ class Server {
 	}
 
 	public initial() {
-		this.app.use(bodyParse());
+		this.app.use(express.json());
+		this.app.use(express.urlencoded({ extended: true }));
+
 		this.app.use(
 			cors({
 				origin: "*",
@@ -60,6 +62,10 @@ class Server {
 
 	public getApp() {
 		return this.app;
+	}
+
+	public getServer() {
+		return this.server
 	}
 
 	public start() {

@@ -12,7 +12,7 @@ export class UserRepository extends BaseRepository<User> implements IUserReposit
 	}
 
 	public async all(): Promise<User[]> {
-		return await this._model.scope("sendToClient").findAll();
+		return await this._model.findAll({include: {model: LeaveDay, as: "approvedDays"}});
 	}
 
 	public async findById(id: number, attributes?: string[]) {
@@ -61,6 +61,9 @@ export class UserRepository extends BaseRepository<User> implements IUserReposit
 			include: { model: LeaveDay, as: "leaveDays" },
 			where: { id: leaveRequestId },
 		});
+		if (result.length == 0) {
+			return null ;
+		}
         return result[0];
 	}
 }

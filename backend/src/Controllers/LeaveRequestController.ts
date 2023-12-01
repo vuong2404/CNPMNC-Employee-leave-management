@@ -13,6 +13,7 @@ export interface ILeaveRequestController {
 	reject: (req: Request, res: Response, next: NextFunction) => void;
 	cancel: (req: Request, res: Response, next: NextFunction) => void;
 	search: (req: Request, res: Response, next: NextFunction) => void;
+	deleteRequest:  (req: Request, res: Response, next: NextFunction) => void;
 }
 
 @injectable()
@@ -44,5 +45,8 @@ export class LeaveRequestController implements ILeaveRequestController {
 	};
 	public search = (req: Request, res: Response, next: NextFunction) => {
 		this.leaveRequestService.getById(req, res, next);
+	};
+	public deleteRequest = (req: Request, res: Response, next: NextFunction) => {
+		this.leaveRequestService.deleteRequest(req, res, next)
 	};
 }

@@ -2,7 +2,7 @@
 	"openapi": "3.0.0",
 	"info": {
 		"version": "1.0.0",
-		"title": "API document of RMS system",
+		"title": "API document of ELMS system",
 		"description": "This is a API application made with Express, Typescript, Sequenlize and documented with Swagger"
 	},
 	"license": {
@@ -420,7 +420,7 @@
 				"tags": [
 					"Leave Request"
 				],
-				"summary": "Edit Leave Request information (if status is pending for employee)",
+				"summary": "Create leave request",
 				"requestBody": {
 					"description": "Object of user for creation",
 					"required": "True",
@@ -589,6 +589,39 @@
 								"2-24-2024"
 							]
 						}
+					}
+				},
+				"401": {
+					"description": "Authentication faild"
+				},
+				"400": {
+					"description": "Validator Error"
+				}
+			},
+			"delete": {
+				"security": [
+					{
+						"JWT": []
+					}
+				],
+				"tags": [
+					"Leave Request"
+				],
+				"summary": "Delete Leave Request information if any",
+				"parameters": [
+					{
+						"in": "path",
+						"name": "id",
+						"schema": {
+							"type": "integer"
+						},
+						"required": true,
+						"description": "Numeric of resouce_id"
+					}
+				],
+				"responses": {
+					"200": {
+						"sucsess": true
 					}
 				},
 				"401": {
