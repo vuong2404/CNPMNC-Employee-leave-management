@@ -1,31 +1,52 @@
-name: Node.js CI
+name: Node.JS CI/CD
 
 on:
   push:
-    branches: [ "master" ]
-  pull_request:
-    branches: [ "master" ]
+    branches: ["master"]
+  pull_request: 
+    branches: ["master"]
 
 jobs:
-  build:
+  test: 
+    name: Test
     runs-on: ubuntu-latest
-    
+
     defaults:
       run:
         working-directory: ./backend/
-    strategy:
+
+    strategy: 
       matrix:
         node-version: [16.x, 18.x]
-        # See supported Node.js release schedule at https://nodejs.org/en/about/releases/
 
     steps:
-    - uses: actions/checkout@v3
-    - name: Use Node.js ${{ matrix.node-version }}
-      uses: actions/setup-node@v3
-      with:
-        node-version: ${{ matrix.node-version }}
-        cache: 'npm'
-        cache-dependency-path: './backend/package-lock.json'
-    - run: npm ci
-    - run: npm run build --if-present
-    - run: npm run test
+      - name: Checkout 
+        uses: actions/checkout@v3
+      - name: Use Node.JS ${{ matrix.node-version }}
+        uses: actions/setup-node@v3 # was "v2" before
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: 'npm'
+          cache-dependency-path: './backend/package-lock.json'
+
+      - name: NPM install, build and test
+        run: |
+          npm ci
+          npm run build --if-present
+          npm run test
+  # Heavily modified deploy job to fit render.com
+  deploy:
+    name: Deploy
+    needs: [test] # Our tests must pass in order to run the deploy job
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: ./backend/
+
+    steps: 
+      - name: Deploy to production
+        uses: johnbeynon/render-deploy-action@v0.0.8
+        with:
+          service-id: ${{ secrets.SERVICE_ID }} # Can be found as part of the Deploy Hook
+          api-key: ${{ secrets.RENDER_API_KEY }} # Create your API key in Render Dashboard > Account Settings
