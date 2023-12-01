@@ -20,15 +20,14 @@ jobs:
         node-version: [16.x]
 
     steps:
-      - name: Checkout 
-        uses: actions/checkout@v3
-        with: 
-          fetch-depth: 0
-
+        - name: Checkout 
+          uses: actions/checkout@v3
       - name: Use Node.JS ${{ matrix.node-version }}
         uses: actions/setup-node@v3 # was "v2" before
-        with: 
+        with:
           node-version: ${{ matrix.node-version }}
+          cache: 'npm'
+          cache-dependency-path: './backend/package-lock.json'
 
       - name: NPM install, build and test
         run: |
@@ -42,7 +41,7 @@ jobs:
     name: Deploy
     needs: [test] # Our tests must pass in order to run the deploy job
     runs-on: ubuntu-latest
-    
+
     defaults:
       run:
         working-directory: ./backend/
