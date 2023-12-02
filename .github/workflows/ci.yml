@@ -40,10 +40,6 @@ jobs:
     needs: [test]
     runs-on: ubuntu-latest
 
-    defaults:
-      run:
-        working-directory: ./backend/
-
     steps: 
       - name: Deploy to production
         uses: johnbeynon/render-deploy-action@v0.0.8
