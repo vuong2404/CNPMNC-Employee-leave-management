@@ -50,11 +50,15 @@ jobs:
       # Bước mới để lấy URL xem trước từ Render
       - name: Get Preview URL
         run: |
-          RENDER_PREVIEW_URL=$(curl -s https://api.render.com/v1/services/${{ secrets.SERVICE_ID }}/preview | jq -r '.serviceUrl' || echo "Failed to retrieve URL")
+          RESPONSE=$(curl -s https://api.render.com/v1/services/${{ secrets.SERVICE_ID }}/preview)
+          RENDER_PREVIEW_URL=$(echo "$RESPONSE" | jq -r '.serviceUrl' || echo "Failed to retrieve URL")
+          
           if [ "$RENDER_PREVIEW_URL" == "Failed to retrieve URL" ]; then
             echo "Error: Failed to retrieve URL from Render API"
+            echo "Response from Render API: $RESPONSE"
             exit 1
           fi
+      
           echo "RENDER_PREVIEW_URL=$RENDER_PREVIEW_URL" >> $GITHUB_ENV
         env:
           RENDER_TOKEN:  ${{ secrets.RENDER_API_KEY }}
