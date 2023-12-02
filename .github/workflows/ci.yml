@@ -50,7 +50,7 @@ jobs:
       # Bước mới để lấy URL xem trước từ Render
       - name: Get Preview URL
         run: |
-          RENDER_PREVIEW_URL=$(curl -s https://api.render.com/v1/services/${{ secrets.SERVICE_ID }}/deploys/latest | jq -r '.serviceUrl' || echo "Failed to retrieve URL")
+          RENDER_PREVIEW_URL=$(curl -s https://api.render.com/v1/services/${{ secrets.SERVICE_ID }}/preview | jq -r '.serviceUrl' || echo "Failed to retrieve URL")
           if [ "$RENDER_PREVIEW_URL" == "Failed to retrieve URL" ]; then
             echo "Error: Failed to retrieve URL from Render API"
             exit 1
