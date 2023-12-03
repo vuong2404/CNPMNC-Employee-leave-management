@@ -37,7 +37,7 @@ export class UserService implements IUserService {
 					result,
 				});
 			} else {
-				throw new ForbiddenError("CANNOT access")
+				throw new ForbiddenError("CANNOT access");
 			}
 		} catch (err) {
 			console.log(err);
@@ -116,7 +116,7 @@ export class UserService implements IUserService {
 			};
 			let [user, created] = await this.userRepository.findOrCreate(data);
 			if (created) {
-				res.send({ user, created });
+				res.send({ user, success: created });
 			} else {
 				throw new CustomError(
 					HttpStatusCode.Conflict,
@@ -166,7 +166,6 @@ export class UserService implements IUserService {
 
 	public deleteUser = async (req: Request, res: Response, next: NextFunction) => {
 		try {
-			
 		} catch (error) {}
 	};
 }
