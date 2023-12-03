@@ -25,7 +25,6 @@ export class LeaveRequestRepository
 	public async findById(id: number): Promise<LeaveRequest | null> {
 		const result = await this._model.findByPk(id, {
 			include: { model: LeaveDay, as: "leaveDays" },
-			logging: console.log,
 		});
 		if (!result) {
 			throw new RecordNotFoundError();
