@@ -18,3 +18,13 @@ export const CreateUsersData = [
         lastname: "A",
     },
 ];
+
+export const loginAdminData = {
+    username: "manager",
+    password: "manager"
+}
+
+export const loginEmployeeData = {
+    username: "manager",
+    password: "manager"
+}

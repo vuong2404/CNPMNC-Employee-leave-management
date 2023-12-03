@@ -25,7 +25,7 @@ class LeaveRequestValidators {
 			.custom((value: any[]) => {
 				return value.every((date) => (new Date(date) >= new Date()));
 			})
-			.withMessage("Invalid Leave Day"),
+			.withMessage("Leave day must be > current day"),
 	];
 
 	static updateLeaveRequest = [

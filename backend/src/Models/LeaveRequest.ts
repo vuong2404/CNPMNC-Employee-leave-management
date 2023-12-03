@@ -28,6 +28,9 @@ class LeaveRequest extends Model {
 	declare getUser: BelongsToGetAssociationMixin<User>
 
 	declare status: LeaveRequestStatus ;
+	declare title: string;
+	declare id: number;
+	declare reason: string;
 
 
 	public static associate() {
