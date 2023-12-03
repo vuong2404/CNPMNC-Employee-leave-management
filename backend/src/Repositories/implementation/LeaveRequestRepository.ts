@@ -4,7 +4,7 @@ import { ILeaveRequestRepository, LeaveRequestDTO } from "../ILeaveRequestReposi
 import { BaseRepository } from "./BaseRepository";
 import { LeaveDay, LeaveRequest, User } from "../../Models";
 import { RecordNotFoundError } from "../../Errors";
-import { where } from "sequelize";
+import { Transaction, where } from "sequelize";
 import Loader from "../../Loaders";
 import { LeaveRequestStatus } from "../../Constants";
 
@@ -102,6 +102,12 @@ export class LeaveRequestRepository
 
 	public async updateStatus(id: number, status: LeaveRequestStatus) {
 		return await this._model.update({ status }, { where: { id } })
+	}
+
+   
+	public async updateStatusByIds(ids: number[],status: string, transaction?: Transaction) {
+		console.log(status, ids)
+		return await this._model.update({status}, {where: {id:  ids}, transaction})	;
 	}
 
 	public async deleteLeaveRequest(id: number, data: number) {
