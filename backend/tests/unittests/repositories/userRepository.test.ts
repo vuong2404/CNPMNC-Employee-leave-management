@@ -1,16 +1,16 @@
 // tests/Repositories/UserRepository.test.ts
 import { Sequelize } from "sequelize";
-import { PermissionRepository, UserRepository } from "../../src/Repositories";
-import Tables, { Permission, User } from "../../src/Models";
-import { CreateUsersData } from "../mockData/user";
-import Loader from "../../src/Loaders";
+import { PermissionRepository, UserRepository } from "../../../src/Repositories";
+import Tables, { Permission, User } from "../../../src/Models";
+import { CreateUsersData } from "../../mockData/user";
+import Loader from "../../../src/Loaders";
 import { throws } from "assert";
 import { error } from "console";
-import { RecordNotFoundError } from "../../src/Errors";
+import { RecordNotFoundError } from "../../../src/Errors";
 
 describe("UserRepository", () => {
 	let userRepository: UserRepository;
-
+	
 	beforeAll(async () => {
 		// Set up a test database connection
 		const tables = new Tables();
