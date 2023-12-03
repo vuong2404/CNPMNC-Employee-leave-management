@@ -2,7 +2,7 @@ import { injectable } from "inversify";
 import Token from "../../Models/Token";
 import { ILeaveRequestRepository, LeaveRequestDTO } from "../ILeaveRequestRepository";
 import { BaseRepository } from "./BaseRepository";
-import { LeaveDay, LeaveRequest } from "../../Models";
+import { LeaveDay, LeaveRequest, User } from "../../Models";
 import { RecordNotFoundError } from "../../Errors";
 import { where } from "sequelize";
 import Loader from "../../Loaders";
@@ -17,7 +17,7 @@ export class LeaveRequestRepository
 	}
 	public async all() {
 		const result = await this._model.findAll({
-			include: { model: LeaveDay, as: "leaveDays" },
+			include: [{model: User},{ model: LeaveDay, as: "leaveDays" }],
 		});
 		return result
 	}
