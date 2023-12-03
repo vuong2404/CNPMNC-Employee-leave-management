@@ -162,7 +162,7 @@ describe("AuthenticationService", () => {
 			await authService.logout(mockRequest, mockResponse, mockNext);
 
 			expect(mockTokenRepository.removeToken).toHaveBeenCalledWith(
-				TokenUtil.hash("testRefreshToken", expect.any(String)),
+				TokenUtil.hash("testRefreshToken", process.env.SECRET_KEY as string),
 				"testUserId",
 			);
 			expect(mockResponse.cookie).toHaveBeenCalledWith(
