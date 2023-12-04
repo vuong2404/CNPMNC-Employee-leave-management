@@ -148,7 +148,6 @@ export class AuthenticationService implements IAuthenticationService {
 
 			const accessTokenParts = authHeader.split(" ");
 			const staleAccessTkn = accessTokenParts[1];
-
 			if (!ACCESS_TOKEN.secret) {
 				throw new Error("Can not found access token secket key");
 			}
@@ -162,7 +161,7 @@ export class AuthenticationService implements IAuthenticationService {
 
 			const rfTkn = cookies[REFRESH_TOKEN.cookie.name];
 			// @ts-ignore
-			const decodedRefreshTkn = await jwt.verify(rfTkn, REFRESH_TOKEN.secret);
+			const decodedRefreshTkn =  jwt.verify(rfTkn, REFRESH_TOKEN.secret);
 			console.log(decodedRefreshTkn);
 
 			const userWithRefreshTkn = await this.userRepository.findById(
@@ -180,12 +179,11 @@ export class AuthenticationService implements IAuthenticationService {
 			// Send back new created accessToken
 			res.status(201);
 			res.set({ "Cache-Control": "no-store", Pragma: "no-cache" });
-			res.json({
+			res.send({
 				success: true,
 				accessToken,
 			});
 		} catch (error: any) {
-			console.log(error);
 			if (error instanceof TokenExpiredError || JsonWebTokenError) {
 				next(new UnauthorizedError(error.message, error.stack));
 			}
