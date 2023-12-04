@@ -45,6 +45,7 @@ jobs:
 
     steps:
       - name: Trigger Render Deploy
+        id: trigger_deploy
         run: |
           RESPONSE=$(curl -X POST \
             -H "Authorization: Bearer ${{ secrets.RENDER_API_KEY }}" \
@@ -53,23 +54,24 @@ jobs:
             "https://api.render.com/v1/services/${{ secrets.SERVICE_ID }}/deploys")
   
           DEPLOY_ID=$(echo $RESPONSE | jq -r '.id')
+          echo "Deploy ID: $DEPLOY_ID"
   
       - name: Check Render Deploy Status
         run: |
           RESPONSE=$(curl --request GET \
-                         --url "https://api.render.com/v1/services/${{ secrets.SERVICE_ID }}/deploys/${DEPLOY_ID}" \
+                         --url "https://api.render.com/v1/services/${{ secrets.SERVICE_ID }}/deploys/${{ steps.trigger_deploy.outputs.DEPLOY_ID }}"" \
                          --header "accept: application/json" \
                          --header "authorization: Bearer ${{ secrets.RENDER_API_KEY }}")
 
           echo $RESPONSE
-          # STATUS=$(echo "$RESPONSE" | jq -r '.status')
+          STATUS=$(echo "$RESPONSE" | jq -r '.status')
   
-          # echo "Render deploy status: $STATUS"
+          echo "Render deploy status: $STATUS"
   
-          # if [[ "$STATUS" == "QUEUED" ]]; then
-          #   echo "Render deploy is still in progress..."
-          #   exit 1  # You can exit with a non-zero code to indicate that the deploy is still in progress
-          # fi
+          if [[ "$STATUS" == "QUEUED" ]]; then
+            echo "Render deploy is still in progress..."
+            exit 1  # You can exit with a non-zero code to indicate that the deploy is still in progress
+          fi
         env:
           SERVICE_ID: ${{ secrets.RENDER_SERVICE_ID }}
           RENDER_API_KEY: ${{ secrets.RENDER_API_KEY }}
