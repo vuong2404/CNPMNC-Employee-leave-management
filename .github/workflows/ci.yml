@@ -47,9 +47,22 @@ jobs:
       run:
         working-directory: ./backend/
 
-    steps: 
-      - name: Deploy to production
-        uses: johnbeynon/render-deploy-action@v0.0.8
-        with:
-          service-id: ${{ secrets.SERVICE_ID }} # Can be found as part of the Deploy Hook
-          api-key: ${{ secrets.RENDER_API_KEY }} # Create your API key in Render Dashboard > Account Settings
+    steps:
+      - name: Trigger Render Deploy
+        run: |
+          RESPONSE=$(curl -X POST \
+            -H "Authorization: Bearer ${{ secrets.RENDER_API_KEY }}" \
+            -H "Content-Type: application/json" \
+            -d '{"branch": "master"}' \
+            "https://api.render.com/v1/services/${{ secrets.SERVICE_ID }}/deploys"
+  
+          DEPLOY_ID=$(echo $RESPONSE | jq -r '.id')
+  
+      - name: Wait for Render Deploy Completion
+        run: |
+          while [[ "$(curl -s -H 'Authorization: Bearer ${{ secrets.RENDER_API_KEY }}' \
+                    -H 'Content-Type: application/json' \
+                    https://api.render.com/v1/services/${{ secrets.SERVICE_ID }}/deploys/${DEPLOY_ID} | jq -r '.status')" == "live" ]]; do
+            echo "Render deploy is still in progress..."
+            sleep 10
+          done
