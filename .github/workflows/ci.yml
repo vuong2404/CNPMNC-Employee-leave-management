@@ -43,10 +43,6 @@ jobs:
       name: production
       url: https://elms-fb1g.onrender.com/api-docs
 
-    defaults:
-      run:
-        working-directory: ./backend/
-
     steps:
       - name: Trigger Render Deploy
         run: |
