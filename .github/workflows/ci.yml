@@ -55,6 +55,7 @@ jobs:
   
           DEPLOY_ID=$(echo $RESPONSE | jq -r '.id')
           echo "Deploy ID: $DEPLOY_ID"
+          echo "::set-output name=DEPLOY_ID::${DEPLOY_ID}"
   
       - name: Check Render Deploy Status
         run: |
