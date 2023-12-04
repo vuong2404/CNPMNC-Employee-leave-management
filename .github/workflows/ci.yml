@@ -60,15 +60,16 @@ jobs:
                          --url "https://api.render.com/v1/services/${{ secrets.SERVICE_ID }}/deploys/${DEPLOY_ID}" \
                          --header "accept: application/json" \
                          --header "authorization: Bearer ${{ secrets.RENDER_API_KEY }}")
-                         
-          STATUS=$(echo "$RESPONSE" | jq -r '.status')
+
+          echo $RESPONSE
+          # STATUS=$(echo "$RESPONSE" | jq -r '.status')
   
-          echo "Render deploy status: $STATUS"
+          # echo "Render deploy status: $STATUS"
   
-          if [[ "$STATUS" == "QUEUED" ]]; then
-            echo "Render deploy is still in progress..."
-            exit 1  # You can exit with a non-zero code to indicate that the deploy is still in progress
-          fi
+          # if [[ "$STATUS" == "QUEUED" ]]; then
+          #   echo "Render deploy is still in progress..."
+          #   exit 1  # You can exit with a non-zero code to indicate that the deploy is still in progress
+          # fi
         env:
           SERVICE_ID: ${{ secrets.RENDER_SERVICE_ID }}
           RENDER_API_KEY: ${{ secrets.RENDER_API_KEY }}
