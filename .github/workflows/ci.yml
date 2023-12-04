@@ -61,7 +61,7 @@ jobs:
         run: |
           while [[ "$(curl -s -H 'Authorization: Bearer ${{ secrets.RENDER_API_KEY }}' \
                     -H 'Content-Type: application/json' \
-                    "https://api.render.com/v1/services/${{ secrets.RENDER_SERVICE_ID }}/deploys/${{ steps.trigger_deploy.outputs.DEPLOY_ID }}" | jq -r '.status')" == "build_in_progress" ]]; do
+                    "https://api.render.com/v1/services/${{ secrets.SERVICE_ID }}/deploys/${{ steps.trigger_deploy.outputs.DEPLOY_ID }}" | jq -r '.status')" == "build_in_progress" ]]; do
             echo "Render deploy is still in progress..."
             sleep 10
           done
