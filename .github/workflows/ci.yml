@@ -54,12 +54,21 @@ jobs:
   
           DEPLOY_ID=$(echo $RESPONSE | jq -r '.id')
   
-      - name: Wait for Render Deploy Completion
+      - name: Check Render Deploy Status
         run: |
-         while [[ "$(response=$(curl -s -H 'Authorization: Bearer ${{ secrets.RENDER_API_KEY }}' \
-            -H 'Content-Type: application/json' \
-            "https://api.render.com/v1/services/${{ secrets.RENDER_SERVICE_ID }}/deploys/$DEPLOY_ID"); \
-            echo "$response" | jq -r '.status')" != "live" ]]; do
+          RESPONSE=$(curl --request GET \
+                         --url "https://api.render.com/v1/services/${{ secrets.SERVICE_ID }}/deploys/${DEPLOY_ID}" \
+                         --header "accept: application/json" \
+                         --header "authorization: Bearer ${{ secrets.RENDER_API_KEY }}")
+                         
+          STATUS=$(echo "$RESPONSE" | jq -r '.status')
+  
+          echo "Render deploy status: $STATUS"
+  
+          if [[ "$STATUS" == "QUEUED" ]]; then
             echo "Render deploy is still in progress..."
-            sleep 10
-         done
+            exit 1  # You can exit with a non-zero code to indicate that the deploy is still in progress
+          fi
+        env:
+          SERVICE_ID: ${{ secrets.RENDER_SERVICE_ID }}
+          RENDER_API_KEY: ${{ secrets.RENDER_API_KEY }}
