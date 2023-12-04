@@ -53,3 +53,20 @@ jobs:
         with:
           service-id: ${{ secrets.SERVICE_ID }} # Can be found as part of the Deploy Hook
           api-key: ${{ secrets.RENDER_API_KEY }} # Create your API key in Render Dashboard > Account Settings
+          
+      - name: Wait for deploy to complete
+        id: wait_for_deploy
+        run: |
+          while [[ "$(curl -s -H 'Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}' \
+                    -H 'Accept: application/vnd.github.v3+json' \
+                    "https://api.github.com/repos/${{ github.repository }}/actions/runs/${{ steps.render_deploy.outputs.run_id }}/deployments" | jq -r '.[0].state')" == "pending" ]]; do
+            echo "Deployment is still in progress..."
+            sleep 10
+          done
+  
+          if [[ "$(curl -s -H 'Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}' \
+                  -H 'Accept: application/vnd.github.v3+json' \
+                  "https://api.github.com/repos/${{ github.repository }}/actions/runs/${{ steps.render_deploy.outputs.run_id }}/deployments" | jq -r '.[0].state')" != "success" ]]; then
+            echo "Deployment failed. Exiting."
+            exit 1
+            fi
