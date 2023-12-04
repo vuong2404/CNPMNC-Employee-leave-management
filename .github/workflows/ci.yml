@@ -59,7 +59,7 @@ jobs:
       - name: Check Render Deploy Status
         run: |
           RESPONSE=$(curl --request GET \
-                         --url "https://api.render.com/v1/services/${{ secrets.SERVICE_ID }}/deploys/${{ steps.trigger_deploy.outputs.DEPLOY_ID }}"" \
+                         --url "https://api.render.com/v1/services/${{ secrets.SERVICE_ID }}/deploys/${{ steps.trigger_deploy.outputs.DEPLOY_ID }}" \
                          --header "accept: application/json" \
                          --header "authorization: Bearer ${{ secrets.RENDER_API_KEY }}")
 
@@ -70,7 +70,7 @@ jobs:
   
           if [[ "$STATUS" == "QUEUED" ]]; then
             echo "Render deploy is still in progress..."
-            exit 1  # You can exit with a non-zero code to indicate that the deploy is still in progress
+            exit 1 
           fi
         env:
           SERVICE_ID: ${{ secrets.RENDER_SERVICE_ID }}
