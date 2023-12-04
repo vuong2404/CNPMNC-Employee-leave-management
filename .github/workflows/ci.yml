@@ -50,7 +50,7 @@ jobs:
             -H "Authorization: Bearer ${{ secrets.RENDER_API_KEY }}" \
             -H "Content-Type: application/json" \
             -d '{"branch": "master"}' \
-            "https://api.render.com/v1/services/${{ secrets.SERVICE_ID }}/deploys"
+            "https://api.render.com/v1/services/${{ secrets.SERVICE_ID }}/deploys")
   
           DEPLOY_ID=$(echo $RESPONSE | jq -r '.id')
   
