@@ -22,10 +22,12 @@ export interface ILeaveRequestService {
 	create: (req: Request, res: Response, next: NextFunction) => Promise<void>;
 	update: (req: Request, res: Response, next: NextFunction) => Promise<void>;
 	approve: (req: Request, res: Response, next: NextFunction) => Promise<void>;
+	rejectMany: (req: Request, res: Response, next: NextFunction) => Promise<void>;
+	approveMany: (req: Request, res: Response, next: NextFunction) => Promise<void>;
 	reject: (req: Request, res: Response, next: NextFunction) => Promise<void>;
 	cancel: (req: Request, res: Response, next: NextFunction) => Promise<void>;
 	search: (req: Request, res: Response, next: NextFunction) => Promise<void>;
-	deleteRequest:  (req: Request, res: Response, next: NextFunction) => Promise<void>;
+	deleteRequest: (req: Request, res: Response, next: NextFunction) => Promise<void>;
 }
 
 @injectable()
@@ -162,16 +164,16 @@ export class LeaveRequestService implements ILeaveRequestService {
 					const leaveDays = await leaveRequest.getLeaveDays({ transaction });
 
 					// Find employee who create the request
-					const user = await leaveRequest.getUser({transaction});
+					const user = await leaveRequest.getUser({ transaction });
 
 					// Add the leave days in the request to the approved days of employee
 					await user.addApprovedDays(leaveDays, { transaction });
 
 					// Update remainings day of that employee
 					const numOfLeaveDays = await user.countApprovedDays({ transaction });
-					
-					if (numOfLeaveDays > DEFAULT_LEAVE_DAYS ) {
-						throw new BadRequestError()
+
+					if (numOfLeaveDays > DEFAULT_LEAVE_DAYS) {
+						throw new BadRequestError();
 					}
 					await user.update(
 						{ remainingLeaveDays: DEFAULT_LEAVE_DAYS - numOfLeaveDays },
@@ -196,6 +198,116 @@ export class LeaveRequestService implements ILeaveRequestService {
 			next(error);
 		}
 	};
+
+	public approveMany = async (req: Request, res: Response, next: NextFunction) => {
+		const transaction = await Loader.sequelize.transaction();
+		try {
+			const errors = validationResult(req);
+			if (!errors.isEmpty()) {
+				throw new ValidationError(errors.array()[0].msg);
+			}
+			if (req.action === "update:any") {
+				const ids = req.body["leaveReqIds"].map((item: any) => Number(item));
+				await Promise.all(
+					ids.map(async (id: number) => {
+						const leaveRequest = await this.leaveRequestRepository.findById(
+							id,
+						);
+						if (!leaveRequest) {
+							throw new RecordNotFoundError();
+						}
+
+						// Check leave Request status
+						if (leaveRequest.status !== LeaveRequestStatus.PENDING) {
+							throw new BadRequestError(
+								`CANNOT APPROVE the leave request #${id} with status ${leaveRequest.status}`,
+							);
+						} else {
+							// Get the leave days of the request
+							const leaveDays = await leaveRequest.getLeaveDays({
+								transaction,
+							});
+
+							// Find employee who create the request
+							const user = await leaveRequest.getUser({ transaction });
+
+							// Add the leave days in the request to the approved days of employee
+							await user.addApprovedDays(leaveDays, { transaction });
+
+							// Update remainings day of that employee
+							const numOfLeaveDays = await user.countApprovedDays({
+								transaction,
+							});
+
+							if (numOfLeaveDays > DEFAULT_LEAVE_DAYS) {
+								throw new BadRequestError();
+							}
+							await user.update(
+								{
+									remainingLeaveDays:
+										DEFAULT_LEAVE_DAYS - numOfLeaveDays,
+								},
+								{ transaction },
+							);
+						}
+					}),
+				);
+				const result = await this.leaveRequestRepository.updateStatusByIds(
+					ids,
+					LeaveRequestStatus.APPROVED,
+					transaction,
+				);
+				await transaction.commit();
+
+				res.send(result);
+			} else {
+				await transaction.rollback();
+				throw new ForbiddenError();
+			}
+		} catch (error) {
+			next(error);
+		}
+	};
+
+	public rejectMany = async (req: Request, res: Response, next: NextFunction) => {
+		try {
+			const errors = validationResult(req);
+			if (!errors.isEmpty()) {
+				throw new ValidationError(errors.array()[0].msg);
+			}
+			if (req.action === "update:any") {
+				const ids = req.body["leaveReqIds"].map((item: any) => Number(item));
+				console.log(ids)
+				await Promise.all(
+					ids.map(async (id: number) => {
+						const leaveRequest = await this.leaveRequestRepository.findById(
+							id,
+						);
+						if (!leaveRequest) {
+							throw new RecordNotFoundError();
+						}
+						if (!(leaveRequest.status === LeaveRequestStatus.PENDING)) {
+							throw new BadRequestError(
+								`CANNOT REJECT the leave request #${id} with status ${leaveRequest.status}`,
+							);
+						}
+					}),
+				);
+				const result = await this.leaveRequestRepository.updateStatusByIds(
+					ids,
+					LeaveRequestStatus.REJECTED,
+				);
+
+				res.send({success: true, result})
+			} else {
+				throw new ForbiddenError();
+			}
+		} catch (error) {
+			console.log(error);
+			next(error);
+		}
+	};
+
 	public reject = async (req: Request, res: Response, next: NextFunction) => {
 		try {
 			const id = Number(req.params["id"]);
@@ -254,22 +366,20 @@ export class LeaveRequestService implements ILeaveRequestService {
 	public deleteRequest = async (req: Request, res: Response, next: NextFunction) => {
 		try {
 			const id = Number(req.params["id"]);
-			const userId = Number(req.userId)
+			const userId = Number(req.userId);
 			if (req.action === "delete:own") {
-				await this.leaveRequestRepository.deleteLeaveRequest(id, userId)
-			}
-			else {
+				await this.leaveRequestRepository.deleteLeaveRequest(id, userId);
+			} else {
 				throw new ForbiddenError();
 			}
-			res.send({ success: true});
-		}
-		catch(err) {
+			res.send({ success: true });
+		} catch (err) {
 			console.log(err);
 			next(err);
 		}
-	}
+	};
 
-	public search = async (req: Request, res: Response, next: NextFunction) => {}; 
+	public search = async (req: Request, res: Response, next: NextFunction) => {};
 
 	// helper function
 	private parseLeaveDay = (leaveRequests: LeaveRequest[]) => {

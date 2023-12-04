@@ -10,7 +10,9 @@ export interface ILeaveRequestController {
 	create: (req: Request, res: Response, next: NextFunction) => void;
 	update: (req: Request, res: Response, next: NextFunction) => void;
 	approve: (req: Request, res: Response, next: NextFunction) => void;
+	approveMany: (req: Request, res: Response, next: NextFunction) => void;
 	reject: (req: Request, res: Response, next: NextFunction) => void;
+	rejectMany: (req: Request, res: Response, next: NextFunction) => void;
 	cancel: (req: Request, res: Response, next: NextFunction) => void;
 	search: (req: Request, res: Response, next: NextFunction) => void;
 	deleteRequest:  (req: Request, res: Response, next: NextFunction) => void;
@@ -39,6 +41,12 @@ export class LeaveRequestController implements ILeaveRequestController {
 	};
 	public reject = (req: Request, res: Response, next: NextFunction) => {
 		this.leaveRequestService.reject(req, res, next);
+	};
+	public approveMany = (req: Request, res: Response, next: NextFunction) => {
+		this.leaveRequestService.approveMany(req, res, next);
+	};
+	public rejectMany = (req: Request, res: Response, next: NextFunction) => {
+		this.leaveRequestService.rejectMany(req, res, next);
 	};
 	public cancel = (req: Request, res: Response, next: NextFunction) => {
 		this.leaveRequestService.cancel(req, res, next);

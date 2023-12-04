@@ -696,6 +696,42 @@
 				}
 			}
 		},
+		"/leave_reqs/approves": {
+			"put": {
+				"security": [
+					{
+						"JWT": []
+					}
+				],
+				"tags": [
+					"Leave Request"
+				],
+				"summary": "Approve many leave requests for admin",
+				"requestBody": {
+					"description": "Ids of leave requests need approve",
+					"required": "True",
+					"content": {
+						"application/json": {
+							"example": {
+								"leaveReqIds": [
+									1,
+									2,
+									3
+								]
+							}
+						}
+					}
+				},
+				"responses": {
+					"200": {
+						"sucsess": true
+					}
+				},
+				"401": {
+					"description": "Authentication faild"
+				}
+			}
+		},
 		"/leave_reqs/{id}/reject": {
 			"put": {
 				"security": [
@@ -718,6 +754,42 @@
 						"description": "Numeric of resouce_id"
 					}
 				],
+				"responses": {
+					"200": {
+						"sucsess": true
+					}
+				},
+				"401": {
+					"description": "Authentication faild"
+				}
+			}
+		},
+		"/leave_reqs/rejects": {
+			"put": {
+				"security": [
+					{
+						"JWT": []
+					}
+				],
+				"tags": [
+					"Leave Request"
+				],
+				"summary": "Reject many leave requests for admin",
+				"requestBody": {
+					"description": "Ids of leave requests need reject",
+					"required": "True",
+					"content": {
+						"application/json": {
+							"example": {
+								"leaveReqIds": [
+									1,
+									2,
+									3
+								]
+							}
+						}
+					}
+				},
 				"responses": {
 					"200": {
 						"sucsess": true
