@@ -7,7 +7,7 @@ import { HttpStatusCode } from "../Constants";
 
 class AuthMiddleware extends BaseMiddleware {
 	protected static handle(): any {
-		console.log("Authenticating........")
+		// console.log("Authenticating........")
 		this.verifyToken();
 	}
 

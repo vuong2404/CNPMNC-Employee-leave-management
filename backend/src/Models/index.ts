@@ -10,7 +10,7 @@ class Tables {
         }
         catch (err) {
             console.log("Create all tables failed!");
-            console.log(`Err: ${err}`);
+            // console.log(`Err: ${err}`);
         }
     }
 }

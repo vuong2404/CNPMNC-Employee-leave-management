@@ -55,7 +55,7 @@ class LeaveRequestValidators {
 			.isArray()
 			.withMessage("Require list of request id (leaveReqIds")
 			.custom((values: any[]) => {
-				console.log("valus, ", values)
+				// console.log("valus, ", values)
 				return values.every(item => !isNaN(Number(item)))
 			})
 			.withMessage("Id must be integer")
@@ -66,7 +66,7 @@ class LeaveRequestValidators {
 			.isArray()
 			.withMessage("Require list of request id (leaveReqIds")
 			.custom((values: any[]) => {
-				console.log("valus, ", values)
+				// console.log("valus, ", values)
 				return values.every(item => !isNaN(Number(item)))
 			})
 			.withMessage("Id must be integer")

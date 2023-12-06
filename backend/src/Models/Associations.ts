@@ -5,7 +5,6 @@ import Token from "./Token";
 class Association {
 	public static async initialize() {
 		try {
-			console.log("Model association");
 			User.associate();
 			Token.associate();
 			LeaveRequest.associate();
@@ -15,7 +14,7 @@ class Association {
 			
 		} catch (err) {
 			console.log("Initialize association failed!");
-			console.log(`Err: ${err}`);
+			// console.log(`Err: ${err}`);
 		}
 	}
 }

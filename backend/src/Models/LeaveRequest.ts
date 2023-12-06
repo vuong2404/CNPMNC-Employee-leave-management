@@ -34,7 +34,7 @@ class LeaveRequest extends Model {
 
 
 	public static associate() {
-		console.log("LeaveRequest association") ;
+		// console.log("LeaveRequest association") ;
 
 		LeaveRequest.belongsTo(User, {
 			foreignKey: "userId",

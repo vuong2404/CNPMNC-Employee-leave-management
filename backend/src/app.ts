@@ -88,6 +88,6 @@ export class Server {
 		server.start();
 	} catch (err) {
 		console.log("Connect to server failed!");
-		console.log(`Error: ${err}`);
+		// console.log(`Error: ${err}`);
 	}
 })();

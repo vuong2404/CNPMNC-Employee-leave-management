@@ -41,9 +41,9 @@ LeaveDay.init(
 );
 
 
-LeaveDay.addHook("beforeCreate", (instance: LeaveDay) => {
-	console.log("before update or insert. Check...........")
-}) 
+// LeaveDay.addHook("beforeCreate", (instance: LeaveDay) => {
+// 	console.log("before update or insert. Check...........")
+// }) 
 
 
 

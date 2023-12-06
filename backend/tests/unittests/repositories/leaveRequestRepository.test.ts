@@ -40,7 +40,7 @@ describe("LeaveRequestRepository", () => {
                 await Promise.all(leaveRequestData.map((requestData) => LeaveRequest.create(requestData)));
             }
             catch(err) {
-                console.log(err)
+                // console.log(err)
             }
             const leaveRequests = await leaveRequestRepository.all()
             expect(leaveRequests.length).toEqual(3);
@@ -60,7 +60,7 @@ describe("LeaveRequestRepository", () => {
                 await Promise.all(leaveRequestData.map((requestData) => LeaveRequest.create(requestData)));
             }
             catch(err) {
-                console.log(err)
+                // console.log(err)
             }
             const requestId = 1
             const leaveRequest = await leaveRequestRepository.findById(requestId)
@@ -79,7 +79,7 @@ describe("LeaveRequestRepository", () => {
                 await Promise.all(leaveRequestData.map((requestData) => LeaveRequest.create(requestData)));
             }
             catch(err) {
-                console.log(err)
+                // console.log(err)
             }
             const requestId = 99
             await expect(leaveRequestRepository.findById(requestId))
@@ -114,7 +114,7 @@ describe("LeaveRequestRepository", () => {
                 expect(leaveRequest.reason).toMatch(/Health Check/);
             }
             catch(err) {
-                console.log(err)
+                // console.log(err)
             }
         })
         it("should update a request having original leave day not null", async () => {
@@ -135,7 +135,7 @@ describe("LeaveRequestRepository", () => {
                 expect(leaveRequest.reason).toMatch(/Wedding party/);
             }
             catch(err) {
-                console.log(err)
+                // console.log(err)
             }
         })
         it("should throw error for updating an non-existing request", async () => {
@@ -156,7 +156,7 @@ describe("LeaveRequestRepository", () => {
 
             }
             catch(err) {
-                console.log(err)
+                // console.log(err)
             }
         })
     })
@@ -170,7 +170,7 @@ describe("LeaveRequestRepository", () => {
                 expect(result).toEqual(true);
             }
             catch(err) {
-                console.log(err)
+                // console.log(err)
             }
         })
     })
@@ -184,7 +184,7 @@ describe("LeaveRequestRepository", () => {
                 expect(result).toEqual(true);
             }
             catch(err) {
-                console.log(err)
+                // console.log(err)
             }
         })
         it("should throw error for deleting an non-existing request", async () => {
@@ -195,7 +195,7 @@ describe("LeaveRequestRepository", () => {
                     .rejects.toStrictEqual(new RecordNotFoundError());
             }
             catch(err) {
-                console.log(err)
+                // console.log(err)
             }
         })
         it("should throw error for deleting an non-existing user", async () => {
@@ -206,7 +206,7 @@ describe("LeaveRequestRepository", () => {
                     .rejects.toStrictEqual(new RecordNotFoundError());
             }
             catch(err) {
-                console.log(err)
+                // console.log(err)
             }
         })
         it("should throw error for deleting an non-existing user and non-existing request", async () => {
@@ -217,7 +217,7 @@ describe("LeaveRequestRepository", () => {
                     .rejects.toStrictEqual(new RecordNotFoundError());
             }
             catch(err) {
-                console.log(err)
+                // console.log(err)
             }
         })
     })

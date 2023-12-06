@@ -40,7 +40,7 @@ export class UserService implements IUserService {
 				throw new ForbiddenError("CANNOT access");
 			}
 		} catch (err) {
-			console.log(err);
+			// console.log(err);
 			next(err);
 		}
 	};
@@ -54,7 +54,7 @@ export class UserService implements IUserService {
 				throw new RecordNotFoundError("User NOT FOUND");
 			}
 		} catch (err) {
-			console.log(err);
+			// console.log(err);
 			next(err);
 		}
 	};
@@ -83,7 +83,7 @@ export class UserService implements IUserService {
 				throw new RecordNotFoundError("User NOT FOUND");
 			}
 		} catch (error) {
-			console.log(error);
+			// console.log(error);
 			next(error);
 		}
 	};
@@ -125,7 +125,7 @@ export class UserService implements IUserService {
 				);
 			}
 		} catch (err) {
-			console.log(err);
+			// console.log(err);
 			next(err);
 		}
 	};
@@ -159,7 +159,7 @@ export class UserService implements IUserService {
 				);
 			}
 		} catch (err) {
-			console.log(err);
+			// console.log(err);
 			next(err);
 		}
 	};

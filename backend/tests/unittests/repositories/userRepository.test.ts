@@ -33,7 +33,7 @@ describe("UserRepository", () => {
 			try {
 				await Promise.all(usersData.map((userData) => User.create(userData)));
 			} catch (error) {
-				console.log(error);
+				// console.log(error);
 			}
 			const users = await userRepository.all();
 			// expect(users).toBeInstanceOf(Array);
@@ -104,7 +104,7 @@ describe("UserRepository", () => {
 			const userId = newUser.id;
 
 			const deletedUser = await userRepository.delete(userId);
-			console.log(deletedUser);
+			// console.log(deletedUser);
 
 			const users = await userRepository.all();
 
@@ -137,7 +137,7 @@ describe("UserRepository", () => {
 			// Tìm hoặc tạo user với username đã tồn tại
 			const [user, created] = await userRepository.findOrCreate({
 				username: "user1",
-				hashedPassword: "123456",
+				password: "123456",
 				firstname: "Nguyen van",
 				lastname: "A",
 			});
@@ -147,12 +147,6 @@ describe("UserRepository", () => {
 		});
 
 		it("should create a new user if not exists", async () => {
-			const userData = {
-				username: "newUser",
-				email: "new@example.com",
-				password: "password123",
-			};
-
 			// Tìm hoặc tạo user với username chưa tồn tại
 			const [user, created] = await userRepository.findOrCreate({
 				username: "user1",

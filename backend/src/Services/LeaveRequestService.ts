@@ -52,7 +52,7 @@ export class LeaveRequestService implements ILeaveRequestService {
 				throw new ForbiddenError();
 			}
 		} catch (error) {
-			console.log(error);
+			// console.log(error);
 			next(error);
 		}
 	};
@@ -85,7 +85,7 @@ export class LeaveRequestService implements ILeaveRequestService {
 				});
 			}
 		} catch (error) {
-			console.log(error);
+			// console.log(error);
 			next(error);
 		}
 	};
@@ -108,7 +108,7 @@ export class LeaveRequestService implements ILeaveRequestService {
 
 			res.send({ success: true, result: this.parseLeaveDay([result])[0] });
 		} catch (error) {
-			console.log(error);
+			// console.log(error);
 			next(error);
 		}
 	};
@@ -138,7 +138,7 @@ export class LeaveRequestService implements ILeaveRequestService {
 				throw new ForbiddenError();
 			}
 		} catch (error) {
-			console.log(error);
+			// console.log(error);
 			next(error);
 		}
 	};
@@ -276,7 +276,7 @@ export class LeaveRequestService implements ILeaveRequestService {
 			}
 			if (req.action === "update:any") {
 				const ids = req.body["leaveReqIds"].map((item: any) => Number(item));
-				console.log(ids)
+				// console.log(ids)
 				await Promise.all(
 					ids.map(async (id: number) => {
 						const leaveRequest = await this.leaveRequestRepository.findById(
@@ -302,7 +302,7 @@ export class LeaveRequestService implements ILeaveRequestService {
 				throw new ForbiddenError();
 			}
 		} catch (error) {
-			console.log(error);
+			// console.log(error);
 			next(error);
 		}
 	};
@@ -330,7 +330,7 @@ export class LeaveRequestService implements ILeaveRequestService {
 				throw new ForbiddenError();
 			}
 		} catch (error) {
-			console.log(error);
+			// console.log(error);
 			next(error);
 		}
 	};
@@ -357,7 +357,7 @@ export class LeaveRequestService implements ILeaveRequestService {
 				throw new ForbiddenError();
 			}
 		} catch (error) {
-			console.log(error);
+			// console.log(error);
 			next(error);
 		}
 	};
@@ -373,7 +373,7 @@ export class LeaveRequestService implements ILeaveRequestService {
 			}
 			res.send({ success: true });
 		} catch (err) {
-			console.log(err);
+			// console.log(err);
 			next(err);
 		}
 	};

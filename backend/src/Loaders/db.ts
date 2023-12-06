@@ -20,7 +20,7 @@ class DBConnect {
         }
         catch (err) {
             console.log("Check the existence of database failed!");
-            console.log(`Error: ${err}`);
+            // console.log(`Error: ${err}`);
         }
     }
 
@@ -31,7 +31,7 @@ class DBConnect {
         }
         catch (err) {
             console.log("Connect to database failed!");
-            console.log(`Error: ${err}`);
+            // console.log(`Error: ${err}`);
         }
     }
 }

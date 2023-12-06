@@ -2,7 +2,7 @@ import { injectable } from "inversify";
 import "reflect-metadata";
 import { BaseRepository } from "./BaseRepository";
 import { User, Token, LeaveDay, LeaveRequest, ApprovedDay } from "../../Models";
-import { IUserRepository } from "../IUserRepository";
+import { IUserRepository, UserDTO } from "../IUserRepository";
 import { RecordNotFoundError } from "../../Errors";
 
 @injectable()
@@ -34,10 +34,11 @@ export class UserRepository extends BaseRepository<User> implements IUserReposit
 		return await this._model.findOne({ where: { username } });
 	}
 
-	public async findOrCreate(data: any) {
+	public async findOrCreate(data: UserDTO) {
+		const { username, password, ...otherAttributes } = data;
 		return await this._model.findOrCreate({
-			where: { username: data.username },
-			defaults: { ...data, hashedPassword: data.password },
+			where: { username: username },
+			defaults: { ...otherAttributes, hashedPassword: password }
 		});
 	}
 
