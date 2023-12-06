@@ -85,6 +85,7 @@ describe("leaveRequestService", () => {
       addLeaveDay: jest.fn(),
       getUser: jest.fn(),
       delete: jest.fn(),
+      updateStatusByIds: jest.fn(),
     } as jest.Mocked<ILeaveRequestRepository>;
 
     const mockLeaveRequest: LeaveRequest = {

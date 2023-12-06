@@ -15,7 +15,6 @@ import { validationResult } from "express-validator";
 import { DEFAULT_LEAVE_DAYS, LeaveRequestStatus } from "../Constants";
 import Loader from "../Loaders";
 import { LeaveRequest } from "../Models";
-import { log } from "console";
 
 export interface ILeaveRequestService {
   getAll: (req: Request, res: Response, next: NextFunction) => Promise<void>;
@@ -23,6 +22,16 @@ export interface ILeaveRequestService {
   create: (req: Request, res: Response, next: NextFunction) => Promise<void>;
   update: (req: Request, res: Response, next: NextFunction) => Promise<void>;
   approve: (req: Request, res: Response, next: NextFunction) => Promise<void>;
+  rejectMany: (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ) => Promise<void>;
+  approveMany: (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ) => Promise<void>;
   reject: (req: Request, res: Response, next: NextFunction) => Promise<void>;
   cancel: (req: Request, res: Response, next: NextFunction) => Promise<void>;
   search: (req: Request, res: Response, next: NextFunction) => Promise<void>;
@@ -48,17 +57,12 @@ export class LeaveRequestService implements ILeaveRequestService {
         res.send({
           success: true,
           result: this.parseLeaveDay(result),
-          //   result: result,
         });
       } else if (req.action === "read:own") {
         const leaveRequest = await this.userRequestRepository.getLeaveRequests(
           req.userId
         );
-        res.send({
-          success: true,
-          result: this.parseLeaveDay(leaveRequest),
-          // result: leaveRequest,
-        });
+        res.send({ success: true, result: this.parseLeaveDay(leaveRequest) });
       } else {
         throw new ForbiddenError();
       }
@@ -68,40 +72,38 @@ export class LeaveRequestService implements ILeaveRequestService {
     }
   };
   public getById = async (req: Request, res: Response, next: NextFunction) => {
-    try {
-      if (req.action === "read:any") {
-        const result = await this.leaveRequestRepository.findById(
-          Number(req.params["id"])
-        );
-        
+		try {
+			if (req.action === "read:any") {
+				const result = await this.leaveRequestRepository.findById(
+					Number(req.params["id"]),
+				);
+				if (!result) {
+					throw new RecordNotFoundError();
+				}
+				res.send({
+					success: true,
+					result: this.parseLeaveDay([result])[0],
+				});
+			} else if (req.action === "read:own") {
+				const result = await this.userRequestRepository.getLeaveRequest(
+					req.userId,
+					req.params["id"],
+				);
 
-        if (!result) {
-          throw new RecordNotFoundError();
-        }
-        res.send({
-          success: true,
-          result: this.parseLeaveDay([result])[0],
-        });
-      } else if (req.action === "read:own") {
-        const result = await this.userRequestRepository.getLeaveRequest(
-          req.userId,
-          req.params["id"]
-        );
+				if (!result) {
+					throw new RecordNotFoundError("CANNOT found this leave request");
+				}
 
-        if (!result) {
-          throw new RecordNotFoundError("CANNOT found this leave request");
-        }
-
-        res.send({
-          success: true,
-          result: this.parseLeaveDay([result])[0],
-        });
-      }
-    } catch (error) {
-      console.log(error);
-      next(error);
-    }
-  };
+				res.send({
+					success: true,
+					result: this.parseLeaveDay([result])[0],
+				});
+			}
+		} catch (error) {
+			console.log(error);
+			next(error);
+		}
+	};
   public create = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const errors = validationResult(req);
@@ -210,6 +212,119 @@ export class LeaveRequestService implements ILeaveRequestService {
       next(error);
     }
   };
+
+  public approveMany = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ) => {
+    const transaction = await Loader.sequelize.transaction();
+    try {
+      const errors = validationResult(req);
+      if (!errors.isEmpty()) {
+        throw new ValidationError(errors.array()[0].msg);
+      }
+      if (req.action === "update:any") {
+        const ids = req.body["leaveReqIds"].map((item: any) => Number(item));
+        await Promise.all(
+          ids.map(async (id: number) => {
+            const leaveRequest = await this.leaveRequestRepository.findById(id);
+            if (!leaveRequest) {
+              throw new RecordNotFoundError();
+            }
+
+            // Check leave Request status
+            if (leaveRequest.status !== LeaveRequestStatus.PENDING) {
+              throw new BadRequestError(
+                `CANNOT APPROVE the leave request #${id} with status ${leaveRequest.status}`
+              );
+            } else {
+              // Get the leave days of the request
+              const leaveDays = await leaveRequest.getLeaveDays({
+                transaction,
+              });
+
+              // Find employee who create the request
+              const user = await leaveRequest.getUser({ transaction });
+
+              // Add the leave days in the request to the approved days of employee
+              await user.addApprovedDays(leaveDays, { transaction });
+
+              // Update remainings day of that employee
+              const numOfLeaveDays = await user.countApprovedDays({
+                transaction,
+              });
+
+              if (numOfLeaveDays > DEFAULT_LEAVE_DAYS) {
+                throw new BadRequestError();
+              }
+              await user.update(
+                {
+                  remainingLeaveDays: DEFAULT_LEAVE_DAYS - numOfLeaveDays,
+                },
+                { transaction }
+              );
+            }
+          })
+        );
+        const result = await this.leaveRequestRepository.updateStatusByIds(
+          ids,
+          LeaveRequestStatus.APPROVED,
+          transaction
+        );
+        await transaction.commit();
+
+        res.send(result);
+      } else {
+        await transaction.rollback();
+        throw new ForbiddenError();
+      }
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  public rejectMany = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ) => {
+    try {
+      const errors = validationResult(req);
+      if (!errors.isEmpty()) {
+        throw new ValidationError(errors.array()[0].msg);
+      }
+      if (req.action === "update:any") {
+        const ids = req.body["leaveReqIds"].map((item: any) => Number(item));
+        console.log(ids);
+        await Promise.all(
+          ids.map(async (id: number) => {
+            const leaveRequest = await this.leaveRequestRepository.findById(id);
+            if (!leaveRequest) {
+              throw new RecordNotFoundError();
+            }
+            if (!(leaveRequest.status === LeaveRequestStatus.PENDING)) {
+              throw new BadRequestError(
+                `CANNOT REJECT the leave request #${id} with status ${leaveRequest.status}`
+              );
+            }
+          })
+        );
+        const result = await this.leaveRequestRepository.updateStatusByIds(
+          ids,
+          LeaveRequestStatus.REJECTED
+        );
+
+        res.send({ success: true, result });
+      } else {
+        throw new ForbiddenError();
+      }
+    } catch (error) {
+      console.log(error);
+      next(error);
+    }
+  };
+
   public reject = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const id = Number(req.params["id"]);
@@ -315,5 +430,6 @@ export class LeaveRequestService implements ILeaveRequestService {
   // 	});
 
   // 	return result;
+  // }
   // };
 }
