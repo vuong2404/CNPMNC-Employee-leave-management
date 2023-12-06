@@ -67,7 +67,7 @@ export class LeaveRequestService implements ILeaveRequestService {
 					throw new RecordNotFoundError();
 				}
 				res.send({
-					sucsess: true,
+					success: true,
 					result: this.parseLeaveDay([result])[0],
 				});
 			} else if (req.action === "read:own") {
@@ -382,17 +382,33 @@ export class LeaveRequestService implements ILeaveRequestService {
 	public search = async (req: Request, res: Response, next: NextFunction) => {};
 
 	// helper function
-	private parseLeaveDay = (leaveRequests: LeaveRequest[]) => {
-		const result = leaveRequests.map((leaveRequest: any) => {
-			const leaveRequestJSON = leaveRequest.toJSON();
-			return {
-				...leaveRequestJSON,
-				leaveDays: leaveRequestJSON.leaveDays.map(
-					(leaveDay: any) => leaveDay.date,
-				),
-			};
-		});
+  private parseLeaveDay = (leaveRequests: LeaveRequest[]) => {
+    const result = leaveRequests.map((leaveRequest: any) => {
+      const leaveRequestJSON = leaveRequest.toJSON();
+      const mappedLeaveDays = leaveRequestJSON.leaveDays
+        ? leaveRequestJSON.leaveDays.map((leaveDay: any) => leaveDay.date)
+        : [];
 
-		return result;
-	};
+      return {
+        ...leaveRequestJSON,
+        leaveDays: mappedLeaveDays,
+      };
+    });
+
+    return result;
+  };
+  //   private parseLeaveDay = (leaveRequests: LeaveRequest[]) => {
+  // 	const result = leaveRequests.map((leaveRequest: any) => {
+  // 		const leaveRequestJSON = leaveRequest.toJSON();
+  // 		return {
+  // 			...leaveRequestJSON,
+  // 			leaveDays: leaveRequestJSON.leaveDays.map(
+  // 				(leaveDay: any) => leaveDay.date,
+  // 			),
+  // 		};
+  // 	});
+
+  // 	return result;
+  // }
+  // };
 }
