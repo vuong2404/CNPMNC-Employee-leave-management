@@ -18,12 +18,12 @@ class Message {
 
     static logMessage(req: Request, status: number) {
         const result: String = this.preProcess(req, status);
-        console.log(result);
+        // console.log(result);
     }
 
     static queryError(err: any) {
         console.log("Query is failed!");
-        console.log(`Err: ${err}`);
+        // console.log(`Err: ${err}`);
     }
 }
 

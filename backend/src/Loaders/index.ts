@@ -18,7 +18,7 @@ class Loader {
         }
         catch (err) {
             console.log("Load resources failed!");
-            console.log(`Err: ${err}`);
+            // console.log(`Err: ${err}`);
         }
     }
 }

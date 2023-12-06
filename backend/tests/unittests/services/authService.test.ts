@@ -239,7 +239,7 @@ describe("AuthenticationService", () => {
 			try {
 				await authService.refreshToken(mockRequest, mockResponse, mockNext);
 			} catch (error) {
-				console.log(error);
+				// console.log(error);
 			}
 
 			expect(mockUserRepository.findById).toHaveBeenCalledWith(1);

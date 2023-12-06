@@ -7,6 +7,7 @@ import { RecordNotFoundError } from "../../Errors";
 import { Transaction, where } from "sequelize";
 import Loader from "../../Loaders";
 import { LeaveRequestStatus } from "../../Constants";
+import moment from "moment";
 
 @injectable()
 export class LeaveRequestRepository
@@ -37,7 +38,7 @@ export class LeaveRequestRepository
 			...data,
 			leaveDays: data.leaveDays.map((item: string) => ({ date: item })),
 		};
-		console.log(leaveRequestData);
+		// console.log(leaveRequestData);
 		const result = await this._model.create(leaveRequestData, {
 			include: { model: LeaveDay, as: "leaveDays" },
 		});
@@ -67,11 +68,10 @@ export class LeaveRequestRepository
 				await Promise.all(
 					oldLeaveDays.map((item) => item.destroy({ transaction })),
 				);
-
 				// create new leaveDays
 				const newLeaveDayItems: LeaveDay[] = await Promise.all(
 					leaveDays.map(async (item: any) => {
-						const result = await leaveRequest.createLeaveDay(item, {
+						const result = await leaveRequest.createLeaveDay(moment(item, 'MM-DD-YYYY').toDate(), {
 							transaction,
 						});
 						if (!result) {
@@ -105,7 +105,7 @@ export class LeaveRequestRepository
 
    
 	public async updateStatusByIds(ids: number[],status: string, transaction?: Transaction) {
-		console.log(status, ids)
+		// console.log(status, ids)
 		return await this._model.update({status}, {where: {id:  ids}, transaction})	;
 	}
 

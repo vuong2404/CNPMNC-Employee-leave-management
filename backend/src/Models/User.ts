@@ -42,7 +42,7 @@ class User extends Model {
 	declare remainingDays: number;
 
 	public static associate() {
-		console.log("User association") ;
+		// console.log("User association") ;
 
 		User.hasMany(Token, {foreignKey: "userId"})
 
@@ -58,9 +58,9 @@ class User extends Model {
 		});
 	}
 	public async checkPassword(password: string) {
-		console.log("Comparing password.....", password, this.hashedPassword);
+		// console.log("Comparing password.....", password, this.hashedPassword);
 		const result = await bcrypt.compare(password, this.hashedPassword);
-		console.log(result ? "Password Ok!" : "Incorrect password");
+		// console.log(result ? "Password Ok!" : "Incorrect password");
 		return result;
 	}
 
@@ -204,7 +204,7 @@ User.addHook("beforeCreate", async (instance) => {
 // })
 
 User.addHook("beforeUpdate", async (instance: User) => {
-	console.log("Before update user")
+	// console.log("Before update user")
 	const num = await instance.countApprovedDays() ;
 	if (instance.remainingDays + num !== 12 ) {
 		instance.update({remainingDays: 12 - num})

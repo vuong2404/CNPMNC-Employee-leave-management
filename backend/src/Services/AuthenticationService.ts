@@ -74,7 +74,7 @@ export class AuthenticationService implements IAuthenticationService {
 
 			const rTknHash = TokenUtil.hash(refreshToken, REFRESH_TOKEN.secret || "");
 			const result = await this.tokenRepository.removeToken(rTknHash, userId);
-			console.log(result);
+			// console.log(result);
 			const expireCookieOptions = Object.assign(
 				{},
 				REFRESH_TOKEN.cookie.options,
@@ -90,7 +90,7 @@ export class AuthenticationService implements IAuthenticationService {
 				message: "Log out",
 			});
 		} catch (error) {
-			console.log(error);
+			// console.log(error);
 			next(error);
 		}
 	};
@@ -123,7 +123,7 @@ export class AuthenticationService implements IAuthenticationService {
 				success: true,
 			});
 		} catch (error) {
-			console.log(error);
+			// console.log(error);
 			next(error);
 		}
 	};
@@ -162,7 +162,7 @@ export class AuthenticationService implements IAuthenticationService {
 			const rfTkn = cookies[REFRESH_TOKEN.cookie.name];
 			// @ts-ignore
 			const decodedRefreshTkn =  jwt.verify(rfTkn, REFRESH_TOKEN.secret);
-			console.log(decodedRefreshTkn);
+			// console.log(decodedRefreshTkn);
 
 			const userWithRefreshTkn = await this.userRepository.findById(
 				// @ts-ignore

@@ -24,7 +24,7 @@ class ErrorUtil {
 				return new Errors.UnauthorizedError(error.message, error.stack);
 
 			case TokenExpiredError:
-				console.log(error.name)
+				// console.log(error.name)
 				return error
 			default:
 				return new Errors.UnknownError(error.message, error.stack);
