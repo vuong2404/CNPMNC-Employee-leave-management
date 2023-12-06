@@ -15,7 +15,6 @@ import { validationResult } from "express-validator";
 import { DEFAULT_LEAVE_DAYS, LeaveRequestStatus } from "../Constants";
 import Loader from "../Loaders";
 import { LeaveRequest } from "../Models";
-
 export interface ILeaveRequestService {
 	getAll: (req: Request, res: Response, next: NextFunction) => Promise<void>;
 	getById: (req: Request, res: Response, next: NextFunction) => Promise<void>;
