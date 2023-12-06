@@ -1013,4 +1013,55 @@ describe("leaveRequestService", () => {
       expect(mockNext).toHaveBeenCalledWith(expect.any(ForbiddenError));
     });
   });
+
+  describe("deleteRequest", () => {
+    it("should delete leave request by ID", async () => {
+			mockLeaveRequestRepository.deleteLeaveRequest.mockResolvedValue(true);
+			const mockRequest: any = {
+				userId: 2,
+				action: "delete:own",
+				params: {
+					id: 1,
+				},
+			};
+
+			await leaveRequestService.deleteRequest(mockRequest, mockResponse, mockNext);
+
+			expect(mockLeaveRequestRepository.deleteLeaveRequest).toHaveBeenCalledWith(1,2);
+			expect(mockResponse.send).toHaveBeenCalledWith({
+				success: true
+			});
+		});
+    it("should throw ForbiddenError if not authorized", async () => {
+			mockLeaveRequestRepository.deleteLeaveRequest.mockResolvedValue(true);
+			const mockRequest: any = {
+				userId: 2,
+				action: undefined,
+				params: {
+					id: 1,
+				},
+			};
+
+			await leaveRequestService.deleteRequest(mockRequest, mockResponse, mockNext);
+
+			expect(mockLeaveRequestRepository.deleteLeaveRequest).not.toHaveBeenCalled();
+      expect(mockNext).toHaveBeenCalledWith(expect.any(ForbiddenError));
+		});
+    it("should call next with an error if an exception occurs", async () => {
+			const mockRequest: any = {
+				userId: 2,
+				action: "delete:own",
+				params: {
+					id: 1,
+				},
+			};
+
+      mockLeaveRequestRepository.deleteLeaveRequest.mockRejectedValue(new Error("Database error"));
+
+			await leaveRequestService.deleteRequest(mockRequest, mockResponse, mockNext);
+
+			expect(mockLeaveRequestRepository.deleteLeaveRequest).toHaveBeenCalled();
+      expect(mockNext).toHaveBeenCalledWith(expect.any(Error));
+		});
+  })
 });
