@@ -46,22 +46,7 @@ jobs:
     steps:
       - name: Trigger Render Deploy
         id: trigger_deploy
-        run: |
-          RESPONSE=$(curl -X POST \
-            -H "Authorization: Bearer ${{ secrets.RENDER_API_KEY }}" \
-            -H "Content-Type: application/json" \
-            -d '{"branch": "master"}' \
-            "https://api.render.com/v1/services/${{ secrets.SERVICE_ID }}/deploys")
-  
-          DEPLOY_ID=$(echo $RESPONSE | jq -r '.id')
-          echo "Deploy ID: $DEPLOY_ID"
-          echo "::set-output name=DEPLOY_ID::${DEPLOY_ID}"
-  
-      - name: Check Render Deploy Status
-        run: |
-          while [[ "$(curl -s -H 'Authorization: Bearer ${{ secrets.RENDER_API_KEY }}' \
-                    -H 'Content-Type: application/json' \
-                    "https://api.render.com/v1/services/${{ secrets.SERVICE_ID }}/deploys/${{ steps.trigger_deploy.outputs.DEPLOY_ID }}" | jq -r '.status')" == "build_in_progress" ]]; do
-            echo "Render deploy is still in progress..."
-            sleep 10
-          done
+        uses: johnbeynon/render-deploy-action@v0.0.8  
+        with:
+          service-id: ${{ secrets.SERVICE_ID }}
+          api-key: ${{ secrets.RENDER_API_KEY }}
