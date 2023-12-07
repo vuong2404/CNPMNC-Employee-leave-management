@@ -12,15 +12,16 @@ import moment from "moment";
 @injectable()
 export class LeaveRequestRepository
 	extends BaseRepository<LeaveRequest>
-	implements ILeaveRequestRepository {
+	implements ILeaveRequestRepository
+{
 	constructor() {
 		super(LeaveRequest);
 	}
 	public async all() {
 		const result = await this._model.findAll({
-			include: [{model: User},{ model: LeaveDay, as: "leaveDays" }],
+			include: [{ model: User }, { model: LeaveDay, as: "leaveDays" }],
 		});
-		return result
+		return result;
 	}
 
 	public async findById(id: number): Promise<LeaveRequest | null> {
@@ -68,12 +69,16 @@ export class LeaveRequestRepository
 				await Promise.all(
 					oldLeaveDays.map((item) => item.destroy({ transaction })),
 				);
+				await leaveRequest.save();
 				// create new leaveDays
 				const newLeaveDayItems: LeaveDay[] = await Promise.all(
 					leaveDays.map(async (item: any) => {
-						const result = await leaveRequest.createLeaveDay(moment(item, 'MM-DD-YYYY').toDate(), {
-							transaction,
-						});
+						const result = await leaveRequest.createLeaveDay(
+							{ date: moment(item.date, "DD-MM-YYYY").toDate() },
+							{
+								transaction,
+							},
+						);
 						if (!result) {
 							throw new Error();
 						}
@@ -87,12 +92,12 @@ export class LeaveRequestRepository
 
 			// update leaveRequestData
 			await leaveRequest.update(leaveRequestData, { transaction });
-
+			await leaveRequest.save({ transaction });
 			// save and commit the transaction
 			await transaction.commit();
 
 			// Reload the model to get the updated associations
-			return leaveRequest
+			return leaveRequest;
 		} catch (error) {
 			await transaction.rollback();
 			throw error;
@@ -100,13 +105,16 @@ export class LeaveRequestRepository
 	}
 
 	public async updateStatus(id: number, status: LeaveRequestStatus) {
-		return await this._model.update({ status }, { where: { id } })
+		return await this._model.update({ status }, { where: { id } });
 	}
 
-   
-	public async updateStatusByIds(ids: number[],status: string, transaction?: Transaction) {
+	public async updateStatusByIds(
+		ids: number[],
+		status: string,
+		transaction?: Transaction,
+	) {
 		// console.log(status, ids)
-		return await this._model.update({status}, {where: {id:  ids}, transaction})	;
+		return await this._model.update({ status }, { where: { id: ids }, transaction });
 	}
 
 	public async deleteLeaveRequest(id: number, data: number) {
@@ -123,11 +131,10 @@ export class LeaveRequestRepository
 
 			await leaveRequest.destroy();
 			await transaction.commit();
-			return true
-		}
-		catch (err) {
+			return true;
+		} catch (err) {
 			await transaction.rollback();
-			return false
+			return false;
 		}
 	}
 }
